@@ -150,3 +150,4 @@ spring.datasource.username=exercise
 spring.datasource.password=password
 ```
 - Flyway is used for DB migrations. All migration scripts are in `/db/migration` path, also `FlywayConfig` was added.
+- Postman collection and environment files are in `/postman` directory.
