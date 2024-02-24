@@ -135,5 +135,18 @@ scope of this assignment.
 - Extra points for using PostgreSQL.
 - Extra points for using containers.
 
+# Development notes
 
-
+- Number of tables and theirs capacity could be changes in `application.properties` file:
+```
+exercise.tables=10
+exercise.capacity=4
+```
+- PostgreSQL is used for this application, please change DB url,username and password in `application.properties` file:
+```
+## PostgreSQL
+spring.datasource.url=jdbc:postgresql://localhost:5432/exercisedb
+spring.datasource.username=exercise
+spring.datasource.password=password
+```
+- Flyway is used for DB migrations. All migration scripts are in `/db/migration` path, also `FlywayConfig` was added.
