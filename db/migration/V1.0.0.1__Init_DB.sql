@@ -1,5 +1,5 @@
 CREATE TABLE guests (
-                       id integer PRIMARY KEY,
+                       id SERIAL PRIMARY KEY,
                        name varchar(100) NOT NULL,
                        tableNumber integer NOT NULL default 0,
                        accompanyingGuests bigint NOT NULL default 0,
