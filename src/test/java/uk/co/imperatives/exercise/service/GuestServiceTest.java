@@ -29,7 +29,7 @@ public class GuestServiceTest {
      * Check that guest service return test guest name.
      */
     @Test
-    public void givenGuestInfoSaveToDbAndReturnName(){
+    public void givenGuestInfo_SaveToDbAndReturnName(){
         String guestName = "Guest Name";
         given(guestRepository.save(any())).willReturn(guestName);
         assertThat(guestService.addGuest(guestName, 1, 1 ), equalTo(guestName));
