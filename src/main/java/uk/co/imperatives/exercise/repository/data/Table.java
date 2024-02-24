@@ -5,18 +5,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
-
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table("guests")
-public class Guest {
+@org.springframework.data.relational.core.mapping.Table("tables")
+public class Table {
     @Id
-    private String name;
-    private Integer tableNumber;
-    private Integer accompanyingGuests;
+    private Integer id;
+    private Integer capacity;
 }

@@ -1,12 +1,33 @@
-CREATE TABLE guests (
-                       id SERIAL PRIMARY KEY,
-                       name varchar(100) NOT NULL,
-                       tableNumber integer NOT NULL default 0,
-                       accompanyingGuests bigint NOT NULL default 0,
-                       timeArrived TIMESTAMP default NULL
+CREATE TABLE tables
+(
+    id       INT PRIMARY KEY,
+    capacity INT NOT NULL default 0
 )
     WITH (
-        OIDS=FALSE
+        OIDS= FALSE
+    );
+ALTER TABLE "tables"
+    OWNER TO exercise;
+
+CREATE TABLE guests
+(
+    name               varchar(100) NOT NULL PRIMARY KEY,
+    tableNumber        integer      NOT NULL REFERENCES tables (id),
+    accompanyingGuests integer      NOT NULL default 0
+)
+    WITH (
+        OIDS= FALSE
     );
 ALTER TABLE "guests"
+    OWNER TO exercise;
+
+CREATE TABLE arrivals
+(
+    name                      varchar(100) REFERENCES guests (name),
+    arrivedAccompanyingGuests integer NOT NULL default 0
+)
+    WITH (
+        OIDS= FALSE
+    );
+ALTER TABLE "tables"
     OWNER TO exercise;

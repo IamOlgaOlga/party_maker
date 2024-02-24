@@ -137,11 +137,6 @@ scope of this assignment.
 
 # Development notes
 
-- Number of tables and theirs capacity could be changes in `application.properties` file:
-```
-exercise.tables=10
-exercise.capacity=4
-```
 - PostgreSQL is used for this application, please change DB url,username and password in `application.properties` file:
 ```
 ## PostgreSQL
