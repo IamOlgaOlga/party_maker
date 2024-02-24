@@ -22,7 +22,7 @@ public class JpaGuestRepository {
      * @return a name of a new guest
      */
     public String save(Guest guest) {
-        return String.valueOf(jdbcTemplate.update(SQL_INSERT_GUEST_RETURNING_NAME,
-                guest.getName(), guest.getTableNumber(), guest.getAccompanyingGuests()));
+        return jdbcTemplate.queryForObject(SQL_INSERT_GUEST_RETURNING_NAME, String.class,
+                guest.getName(), guest.getTableNumber(), guest.getAccompanyingGuests());
     }
 }
