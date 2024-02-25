@@ -8,6 +8,8 @@ import uk.co.imperatives.exercise.exception.ExerciseServiceException;
 import uk.co.imperatives.exercise.repository.JpaGuestRepository;
 import uk.co.imperatives.exercise.repository.data.Guest;
 
+import java.util.List;
+
 @Slf4j
 @AllArgsConstructor
 @Service
@@ -42,5 +44,10 @@ public class GuestService {
             throw new ExerciseServiceException(errorMessage);
         }
         return savedName;
+    }
+
+    public List<Guest> getGuestList() {
+        log.debug("Call DB to get guest list");
+        return guestRepository.getGuestList();
     }
 }

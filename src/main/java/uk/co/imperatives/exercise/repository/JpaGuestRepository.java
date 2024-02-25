@@ -7,6 +7,10 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import uk.co.imperatives.exercise.repository.data.Guest;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 /**
  * Repository works with an information about guests in application's DB.
  */
@@ -27,12 +31,13 @@ public class JpaGuestRepository {
 
     private final String SQL_GET_GUEST_NAME = "SELECT name FROM guests WHERE name = :newGuestName;";
 
+    private final String SQL_SELECT_ALL_FROM_GUESTS = "SELECT * FROM GUESTS";
+
     private NamedParameterJdbcTemplate jdbcTemplate;
 
     /**
      * Insert a new guest to DB table and return its name.
      * @param guest information about guest (name, table number, accompanying guests)
-     * @return a name of a new guest
      */
     public void updateGuestAndTable(Guest guest) {
         jdbcTemplate.update(SQL_INSERT_GUEST_AND_UPDATE_TABLE_RETURNING_NAME,
@@ -53,6 +58,26 @@ public class JpaGuestRepository {
                     .addValue("newGuestName", guest.getName()), String.class);
         } catch (EmptyResultDataAccessException e){
             return null;
+        }
+    }
+
+    /**
+     * This method go to the DB and return guests list from DB.
+     * @return guests list from DB. If there is nothing in DB, this method returns an empty array list.
+     */
+    public List<Guest> getGuestList() {
+        List<Guest> guestList = new ArrayList<>();
+        try {
+            List<Map<String, Object>> rows = jdbcTemplate.getJdbcTemplate().queryForList(SQL_SELECT_ALL_FROM_GUESTS);
+            for (Map<String, Object> row : rows) {
+                Guest guest = new Guest((String) row.get("name"), (Integer) row.get("tableNumber"),
+                        (Integer) row.get("accompanyingGuests"));
+                guestList.add(guest);
+            }
+            return guestList;
+        } catch (EmptyResultDataAccessException e){
+            // return empty array list
+            return guestList;
         }
     }
 }
