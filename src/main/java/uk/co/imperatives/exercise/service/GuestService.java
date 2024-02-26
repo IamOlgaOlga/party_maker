@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import uk.co.imperatives.exercise.exception.ExerciseServiceBadRequestException;
 import uk.co.imperatives.exercise.exception.ExerciseServiceException;
 import uk.co.imperatives.exercise.repository.JpaGuestRepository;
+import uk.co.imperatives.exercise.repository.JpaTableRepository;
 import uk.co.imperatives.exercise.repository.data.Guest;
 
 import java.util.List;
@@ -17,8 +18,10 @@ public class GuestService {
 
     private JpaGuestRepository guestRepository;
 
+    private JpaTableRepository tableRepository;
+
     /**
-     * Save a new guest to DB and update(or save) information about tables.
+     * Save a new guest to DB in case if there are seats available for specific table.
      * @param name new guest name
      * @param tableNumber table number for reservation
      * @param accompanyingGuests main guest's accompanying guests
@@ -32,6 +35,12 @@ public class GuestService {
         // Check if the guest already exists
         if (guestRepository.getGuestName(guest) != null) {
             var errorMessage = "Guest with name " + guest.getName() + "already exists";
+            log.error(errorMessage);
+            throw new ExerciseServiceBadRequestException(errorMessage);
+        }
+        // Check available seats
+        if (accompanyingGuests + 1 > tableRepository.getTableAvailableSeats(tableNumber)) {
+            var errorMessage = "There is no available seats for table ID = " + tableNumber;
             log.error(errorMessage);
             throw new ExerciseServiceBadRequestException(errorMessage);
         }

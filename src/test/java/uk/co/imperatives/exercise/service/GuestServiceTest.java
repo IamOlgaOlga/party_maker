@@ -19,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -55,7 +56,7 @@ public class GuestServiceTest {
         //
         assertThat(guestService.addGuest(guestName, 1, 1 ), equalTo(guestName));
         verify(guestRepository, times(2)).getGuestName(any(Guest.class));
-        verify(tableRepository, times(1)).getTableId(any());
+        verify(tableRepository, times(1)).getTableAvailableSeats(anyInt());
         verify(guestRepository, times(1)).saveGuest(any(Guest.class));
     }
 
@@ -76,7 +77,7 @@ public class GuestServiceTest {
         Exception exception = assertThrows(ExerciseServiceBadRequestException.class, () -> guestService.addGuest(guestName, 1, 1 ));
         assertEquals(exception.getMessage(), "There is no available seats for table ID = 1");
         verify(guestRepository, times(1)).getGuestName(any(Guest.class));
-        verify(tableRepository, times(1)).getTableId(any());
+        verify(tableRepository, times(1)).getTableAvailableSeats(anyInt());
         verify(guestRepository, times(0)).saveGuest(any(Guest.class));
     }
 
@@ -97,7 +98,7 @@ public class GuestServiceTest {
         Exception exception = assertThrows(ExerciseServiceBadRequestException.class, () -> guestService.addGuest(guestName, 1, 1 ));
         assertEquals(exception.getMessage(), "Guest with name " + guestName + "already exists");
         verify(guestRepository, times(1)).getGuestName(any(Guest.class));
-        verify(tableRepository, times(0)).getTableId(any());
+        verify(tableRepository, times(0)).getTableAvailableSeats(anyInt());
         verify(guestRepository, times(0)).saveGuest(any(Guest.class));
     }
 
@@ -119,7 +120,7 @@ public class GuestServiceTest {
         Exception exception = assertThrows(ExerciseServiceException.class, () -> guestService.addGuest(guestName, 1, 1 ));
         assertEquals(exception.getMessage(), "An error occurs while saving a new guest");
         verify(guestRepository, times(2)).getGuestName(any(Guest.class));
-        verify(tableRepository, times(1)).getTableId(any());
+        verify(tableRepository, times(1)).getTableAvailableSeats(anyInt());
         verify(guestRepository, times(1)).saveGuest(any(Guest.class));
     }
 
