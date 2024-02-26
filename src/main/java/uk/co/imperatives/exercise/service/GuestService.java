@@ -38,6 +38,12 @@ public class GuestService {
             log.error(errorMessage);
             throw new ExerciseServiceBadRequestException(errorMessage);
         }
+        //Check if the table exists
+        if(tableRepository.getTableId(tableNumber) == null) {
+            var errorMessage = "There is no table with ID = " + tableNumber;
+            log.error(errorMessage);
+            throw new ExerciseServiceBadRequestException(errorMessage);
+        }
         // Check available seats
         if (accompanyingGuests + 1 > tableRepository.getTableAvailableSeats(tableNumber)) {
             var errorMessage = "There is no available seats for table ID = " + tableNumber;

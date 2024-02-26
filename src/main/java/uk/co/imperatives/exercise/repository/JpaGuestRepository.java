@@ -3,7 +3,6 @@ package uk.co.imperatives.exercise.repository;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Repository;
 import uk.co.imperatives.exercise.repository.data.Guest;
 

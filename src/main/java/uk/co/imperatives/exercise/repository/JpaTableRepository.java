@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import uk.co.imperatives.exercise.exception.ExerciseServiceBadRequestException;
 import uk.co.imperatives.exercise.exception.ExerciseServiceException;
 import uk.co.imperatives.exercise.repository.data.Table;
 
@@ -39,14 +38,7 @@ public class JpaTableRepository {
     private JdbcTemplate jdbcTemplate;
 
     public int getTableAvailableSeats(int tableId) {
-        try {
-            return jdbcTemplate.queryForObject(SQL_GET_AVAILABLE_TABLE, Integer.class, tableId);
-        }catch (EmptyResultDataAccessException e){
-            // return an exception
-            var errorMessage = "There is no table with ID=" + tableId;
-            log.error(errorMessage);
-            throw new ExerciseServiceBadRequestException(errorMessage);
-        }
+        return jdbcTemplate.queryForObject(SQL_GET_AVAILABLE_TABLE, Integer.class, tableId);
     }
 
     /**
