@@ -35,8 +35,8 @@ public class GuestService {
             log.error(errorMessage);
             throw new ExerciseServiceBadRequestException(errorMessage);
         }
-        log.debug("Try to insert new values to tables and guests DB tables");
-        guestRepository.updateGuestAndTable(guest);
+        log.debug("Try to insert new values to guests DB table");
+        guestRepository.saveGuest(guest);
         String savedName = guestRepository.getGuestName(guest);
         if (savedName == null) {
             var errorMessage = "An error occurs while saving a new guest";

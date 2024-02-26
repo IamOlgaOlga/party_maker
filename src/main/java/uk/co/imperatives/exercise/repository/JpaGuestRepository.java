@@ -2,8 +2,8 @@ package uk.co.imperatives.exercise.repository;
 
 import lombok.AllArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import uk.co.imperatives.exercise.repository.data.Guest;
 
@@ -18,33 +18,20 @@ import java.util.Map;
 @Repository
 public class JpaGuestRepository {
 
-    private final String SQL_INSERT_GUEST_AND_UPDATE_TABLE_RETURNING_NAME = """
-            BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ;
-            -- Insert or update tables
-            INSERT INTO tables (id, capacity)
-            VALUES (:targetTableId, :numberOfGuests)
-            ON CONFLICT (id) DO UPDATE SET capacity = EXCLUDED.capacity + :numberOfGuests;
-            -- Insert the guest into the guests table
-            INSERT INTO guests (name, tableNumber, accompanyingGuests) VALUES ( :newGuestName, :targetTableId, :numberOfGuests);      
-            COMMIT;
-            """;
+    private final String SQL_INSERT_GUEST = "INSERT INTO guests (name, tableNumber, accompanyingGuests) VALUES ( ?, ?, ?);";
 
     private final String SQL_GET_GUEST_NAME = "SELECT name FROM guests WHERE name = :newGuestName;";
 
-    private final String SQL_SELECT_ALL_FROM_GUESTS = "SELECT * FROM GUESTS";
+    private final String SQL_SELECT_ALL_FROM_GUESTS = "SELECT * FROM GUESTS;";
 
-    private NamedParameterJdbcTemplate jdbcTemplate;
+    private JdbcTemplate jdbcTemplate;
 
     /**
      * Insert a new guest to DB table and return its name.
      * @param guest information about guest (name, table number, accompanying guests)
      */
-    public void updateGuestAndTable(Guest guest) {
-        jdbcTemplate.update(SQL_INSERT_GUEST_AND_UPDATE_TABLE_RETURNING_NAME,
-                    new MapSqlParameterSource()
-                            .addValue("newGuestName", guest.getName())
-                            .addValue("targetTableId", guest.getTableNumber())
-                            .addValue("numberOfGuests", guest.getAccompanyingGuests()));
+    public void saveGuest(Guest guest) {
+        jdbcTemplate.update(SQL_INSERT_GUEST, guest.getName(), guest.getTableNumber(), guest.getAccompanyingGuests());
     }
 
     /**
@@ -54,8 +41,7 @@ public class JpaGuestRepository {
      */
     public String getGuestName(Guest guest) {
         try {
-            return jdbcTemplate.queryForObject(SQL_GET_GUEST_NAME, new MapSqlParameterSource()
-                    .addValue("newGuestName", guest.getName()), String.class);
+            return jdbcTemplate.queryForObject(SQL_GET_GUEST_NAME, String.class, guest.getName());
         } catch (EmptyResultDataAccessException e){
             return null;
         }
@@ -68,7 +54,7 @@ public class JpaGuestRepository {
     public List<Guest> getGuestList() {
         List<Guest> guestList = new ArrayList<>();
         try {
-            List<Map<String, Object>> rows = jdbcTemplate.getJdbcTemplate().queryForList(SQL_SELECT_ALL_FROM_GUESTS);
+            List<Map<String, Object>> rows = jdbcTemplate.queryForList(SQL_SELECT_ALL_FROM_GUESTS);
             for (Map<String, Object> row : rows) {
                 Guest guest = new Guest((String) row.get("name"), (Integer) row.get("tableNumber"),
                         (Integer) row.get("accompanyingGuests"));

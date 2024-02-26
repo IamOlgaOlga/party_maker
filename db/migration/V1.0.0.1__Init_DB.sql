@@ -31,3 +31,5 @@ CREATE TABLE arrivals
     );
 ALTER TABLE "tables"
     OWNER TO exercise;
+
+INSERT INTO tables(id, capacity) VALUES (1,5), (2,10), (3,15);

@@ -37,8 +37,8 @@ public class Config {
     }
 
     @Bean
-    public NamedParameterJdbcTemplate namedParameterJdbcTemplate(){
-        return new NamedParameterJdbcTemplate(dataSource());
+    public JdbcTemplate jdbcTemplate(){
+        return new JdbcTemplate(dataSource());
     }
 
     @Primary
