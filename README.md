@@ -146,3 +146,7 @@ spring.datasource.password=password
 ```
 - Flyway is used for DB migrations. All migration scripts are in `/db/migration` path, also `FlywayConfig` was added.
 - Postman collection and environment files are in `/postman` directory.
+- Tables management: there were three values added to DB to the table named tables (via flyway migration script): 
+`(table id = 1, capacity = 5)`, `(table id = 2, capacity = 10)`, `(table id = 3, capacity = 15)`.
+I also added a `TableController` with a few example method to work with tables. 
+For the future there could be more methods added.
