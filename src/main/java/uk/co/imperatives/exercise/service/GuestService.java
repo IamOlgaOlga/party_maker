@@ -46,7 +46,7 @@ public class GuestService {
         }
         log.debug("Try to insert new values to guests DB table");
         guestRepository.saveGuest(guest);
-        String savedName = guestRepository.getGuestName(guest);
+        var savedName = guestRepository.getGuestName(guest);
         if (savedName == null) {
             var errorMessage = "An error occurs while saving a new guest";
             log.error(errorMessage);

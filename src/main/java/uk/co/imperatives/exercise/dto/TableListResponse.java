@@ -8,8 +8,8 @@ import java.util.List;
 
 @Getter
 @AllArgsConstructor
-public class GuestListResponse {
+public class TableListResponse {
 
-    @JsonProperty("guests")
-    private List<GuestRequest> guestList;
+    @JsonProperty("tables_list")
+    private List<TableRequest> tablesList;
 }

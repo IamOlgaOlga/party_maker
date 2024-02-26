@@ -6,9 +6,8 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class GuestFullInfoResponse {
-    private String name;
-    private int table;
-    @JsonProperty("accompanying_guests")
-    private int accompanyingGuests;
+public class TableResponse {
+
+    @JsonProperty("table_id")
+    private int tableId;
 }

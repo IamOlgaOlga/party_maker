@@ -5,6 +5,6 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class NewGuestResponse {
+public class GuestResponse {
     private String name;
 }

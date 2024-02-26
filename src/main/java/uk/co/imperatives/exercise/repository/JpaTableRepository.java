@@ -6,6 +6,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import uk.co.imperatives.exercise.exception.ExerciseServiceBadRequestException;
+import uk.co.imperatives.exercise.exception.ExerciseServiceException;
 import uk.co.imperatives.exercise.repository.data.Table;
 
 import java.util.ArrayList;
@@ -33,6 +34,8 @@ public class JpaTableRepository {
 
     private final static String SQL_SAVE_TABLE = "INSERT INTO tables (id, capacity) VALUES (?, ?);";
 
+    private final static String SQL_UPDATE_TABLE = "UPDATE tables SET capacity=? WHERE id=?;";
+
     private JdbcTemplate jdbcTemplate;
 
     public int getTableAvailableSeats(int tableId) {
@@ -47,7 +50,7 @@ public class JpaTableRepository {
     }
 
     /**
-     * Makes a call to DB and select all records from tables table.
+     * Makes a call to DB and select all records from tables.
      * @return a list of all tables from DB
      */
     public List<Table> getTableList() {
@@ -80,6 +83,18 @@ public class JpaTableRepository {
             return jdbcTemplate.queryForObject(SQL_GET_TABLE_ID, Integer.class, id);
         } catch (EmptyResultDataAccessException e){
             return null;
+        }
+    }
+
+    /**
+     * Updates table's capacity in DB by table ID.
+     * @param table information about table
+     */
+    public void updateTable(Table table) {
+        if (1 != jdbcTemplate.update(SQL_UPDATE_TABLE, table.getCapacity(), table.getId())) {
+            var errorMessage = "Error in DB while table capacity update";
+            log.error(errorMessage);
+            throw new ExerciseServiceException(errorMessage);
         }
     }
 }
