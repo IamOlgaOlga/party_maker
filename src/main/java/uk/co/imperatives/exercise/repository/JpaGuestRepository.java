@@ -65,4 +65,14 @@ public class JpaGuestRepository {
             return guestList;
         }
     }
+
+    /**
+     * This method checks available space at the booked table for arrived guest and accompanying friends
+     * and update an information about arrived guest.
+     * @param guest an arrived guest
+     * @return update rows. 1 in case success update else 0.
+     */
+    public int updateArrivedGuest(Guest guest) {
+        return 1;
+    }
 }

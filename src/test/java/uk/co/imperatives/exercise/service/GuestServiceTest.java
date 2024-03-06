@@ -109,7 +109,7 @@ public class GuestServiceTest {
         given(guestRepository.getGuestName(any(Guest.class))).willReturn(guestName);
         //
         Exception exception = assertThrows(ExerciseServiceBadRequestException.class, () -> guestService.addGuest(guestName, 1, 1 ));
-        assertEquals(exception.getMessage(), "Guest with name " + guestName + "already exists");
+        assertEquals(exception.getMessage(), "Guest with name " + guestName + " already exists");
         verify(guestRepository, times(1)).getGuestName(any(Guest.class));
         verify(tableRepository, times(0)).getTableId(anyInt());
         verify(tableRepository, times(0)).getTableAvailableSeats(anyInt());
@@ -206,7 +206,13 @@ public class GuestServiceTest {
      */
     @Test
     public void givenArrivedGuest_AvailableTableSpace_ReturnGuestName() {
-
+        String guestName = "Guest Name";
+        int accompanyingGuests = 1;
+        given(guestRepository.getGuestName(any(Guest.class))).willReturn(guestName).willReturn(guestName);
+        given(guestRepository.updateArrivedGuest(any(Guest.class))).willReturn(1);
+        assertThat(guestService.checkInGuest(guestName, accompanyingGuests), equalTo(guestName));
+        verify(guestRepository, times(2)).getGuestName(any(Guest.class));
+        verify(guestRepository, times(1)).updateArrivedGuest(any(Guest.class));
     }
 
     /**
@@ -219,7 +225,13 @@ public class GuestServiceTest {
      */
     @Test
     public void givenArrivedGuest_GuestDidNotBookTable_ThrowException() {
-
+        String guestName = "Guest Name";
+        int accompanyingGuests = 1;
+        given(guestRepository.getGuestName(any(Guest.class))).willReturn(null);
+        Exception exception = assertThrows(ExerciseServiceBadRequestException.class, () -> guestService.checkInGuest(guestName, accompanyingGuests));
+        assertEquals(exception.getMessage(), "Guest with name " + guestName + " did not book a table");
+        verify(guestRepository, times(1)).getGuestName(any(Guest.class));
+        verify(guestRepository, times(0)).updateArrivedGuest(any(Guest.class));
     }
 
     /**
@@ -234,7 +246,16 @@ public class GuestServiceTest {
      */
     @Test
     public void givenArrivedGuest_NotAvailableTableSpace_ThrowException() {
-
+        String guestName = "Guest Name";
+        int accompanyingGuests = 1;
+        given(guestRepository.getGuestName(any(Guest.class))).willReturn(guestName);
+        given(guestRepository.updateArrivedGuest(any(Guest.class))).willReturn(0);
+        Exception exception = assertThrows(ExerciseServiceBadRequestException.class,
+                () -> guestService.checkInGuest(guestName, accompanyingGuests));
+        assertEquals(exception.getMessage(), "Booked table does not have available space for " + accompanyingGuests
+                + " guests (main guest name is " + guestName);
+        verify(guestRepository, times(2)).getGuestName(any(Guest.class));
+        verify(guestRepository, times(1)).updateArrivedGuest(any(Guest.class));
     }
 
     /**
@@ -249,6 +270,14 @@ public class GuestServiceTest {
      */
     @Test
     public void givenArrivedGuest_SomeServiceException_ThrowException() {
-
+        String guestName = "Guest Name";
+        int accompanyingGuests = 1;
+        given(guestRepository.getGuestName(any(Guest.class))).willReturn(guestName).willReturn(null);
+        given(guestRepository.updateArrivedGuest(any(Guest.class))).willReturn(1);
+        Exception exception = assertThrows(ExerciseServiceException.class,
+                () -> guestService.checkInGuest(guestName, accompanyingGuests));
+        assertEquals(exception.getMessage(), "An error was occur while updating an information about arrived guest");
+        verify(guestRepository, times(2)).getGuestName(any(Guest.class));
+        verify(guestRepository, times(1)).updateArrivedGuest(any(Guest.class));
     }
 }
