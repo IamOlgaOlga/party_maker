@@ -41,6 +41,7 @@ public class GuestServiceTest {
     private GuestService guestService;
 
     /**
+     * Test for the addGuest() method.
      * Input: guest Name = "Guest Name", tableId = 1, accompanying guests = 1, available seats on table 1 is 2.
      * //
      * The guestRepository will return null as guest name first time while check that guest doesn't exist.
@@ -67,13 +68,14 @@ public class GuestServiceTest {
     }
 
     /**
+     * Test for the addGuest() method.
      * Input: guest Name = "Guest Name", tableId = 1, accompanying guests = 1, available seats on table 1 is 1.
      * //
      * The guestRepository will return null as guest name first time while check that guest doesn't exist.
      * The tableRepository will return table id while check if table exists.
      * The tableRepository will return 2 available seats for table with ID = 1.
      * Method saveGuest() must NOT be called.
-     * Output: an ExerciseServiceBadRequestException exception was thrown.
+     * Output: an ExerciseServiceBadRequestException exception must be thrown.
      */
     @Test
     public void givenGuestInfo_NotAvailableSeats_ThrowException(){
@@ -92,13 +94,14 @@ public class GuestServiceTest {
     }
 
     /**
+     * Test for the addGuest() method.
      * Input: guest Name = "Guest Name", tableId = 1, accompanying guests = 1.
      * //
      * The guestRepository will return a guest name first time while check that guest doesn't exist.
      * The tableRepository must not be called
      * Method saveGuest() must not be called.
      * The guestRepository must not be called the second time.
-     * Output: an ExerciseServiceBadRequestException exception was thrown.
+     * Output: an ExerciseServiceBadRequestException exception must be thrown.
      */
     @Test
     public void givenExistedGuestName_ThrowAnException(){
@@ -114,6 +117,7 @@ public class GuestServiceTest {
     }
 
     /**
+     * Test for the addGuest() method.
      * Input: guest Name = "Guest Name", tableId = 1, accompanying guests = 1, available seats on table 1 is 2.
      * //
      * The guestRepository will return null as guest name first time while check that guest doesn't exist.
@@ -121,7 +125,7 @@ public class GuestServiceTest {
      * The tableRepository will return 2 available seats for table with ID = 1.
      * Method saveGuest() must be called.
      * The guestRepository will return null as guest name the second time.
-     * Output: an ExerciseServiceException exception was thrown.
+     * Output: an ExerciseServiceException exception must be thrown.
      */
     @Test
     public void givenUnexpectedProblemWhileSavingGuest_ThrowAnException(){
@@ -140,13 +144,14 @@ public class GuestServiceTest {
     }
 
     /**
+     * Test for the addGuest() method.
      * Input: guest Name = "Guest Name", tableId = 1, accompanying guests = 1, available seats on table 1 is 2.
      * //
      * The guestRepository will return null as guest name first time while check that guest doesn't exist.
      * The tableRepository will return null while check if table exists.
      * Method saveGuest() must be called.
      * The guestRepository will return null as guest name the second time.
-     * Output: an ExerciseServiceException exception was thrown.
+     * Output: an ExerciseServiceException exception must be thrown.
      */
     @Test
     public void givenNotExistedTableWhileSavingGuest_ThrowAnException(){
@@ -164,6 +169,7 @@ public class GuestServiceTest {
     }
 
     /**
+     * Test for the getGuestList() method.
      * Input:
      * guest 1 (name:"Jon Snow", tableID: 1, accompanying guests: 2);
      * guest 2 (name:"Arya Stark", tableID: 2, accompanying guests: 7)
@@ -172,7 +178,7 @@ public class GuestServiceTest {
      * Output: the guest service returns a list of Guest objects with correct information.
      */
     @Test
-    public void givenRequestForGuestList_ReturnTheCorrectListOfGuests(){
+    public void givenRequestForGuestList_ReturnTheCorrectListOfGuests() {
         Guest guest1 = new Guest("Jon Snow", 1, 2);
         Guest guest2 = new Guest("Arya Stark", 2, 7);
         List<Guest> guestList = new ArrayList<>(2);
@@ -186,5 +192,63 @@ public class GuestServiceTest {
         assertTrue(resultList.stream().anyMatch(guest -> "Arya Stark".equals(guest.getName())
                 && 2 == guest.getTableNumber() && 7 == guest.getAccompanyingGuests()));
         verify(guestRepository, times(1)).getGuestList();
+    }
+
+    /**
+     * Test for method checkInGuest()
+     * Input: guest name "Jon Snow" and accompanying guest = 2.
+     * //
+     * Guest repository returns guest name while checks that the guest booked a table.
+     * Guest repository returns 1 updated row while checks availability of the table's space and
+     * change information about arrived guest.
+     * Guest repository returns guest name the second time if everything is OK.
+     * Output: service returns guest's name.
+     */
+    @Test
+    public void givenArrivedGuest_AvailableTableSpace_ReturnGuestName() {
+
+    }
+
+    /**
+     * Test for method checkInGuest()
+     * Input: guest name "Jon Snow" and accompanying guest = 2.
+     * //
+     * Guest repository doesn't return guest name while checks that the guest booked a table.
+     * Service throws a correct exception for this case.
+     * Output: an ExerciseServiceBadRequestException exception must be thrown.
+     */
+    @Test
+    public void givenArrivedGuest_GuestDidNotBookTable_ThrowException() {
+
+    }
+
+    /**
+     * Test for method checkInGuest()
+     * Input: guest name "Jon Snow" and accompanying guest = 2.
+     * //
+     * Guest repository returns guest name while checks that the guest booked a table.
+     * Guest repository returns 0 updated row while checks availability of the table's space and
+     * change information about arrived guest.
+     * Service throws a correct exception for this case.
+     * Output: an ExerciseServiceBadRequestException exception must be thrown.
+     */
+    @Test
+    public void givenArrivedGuest_NotAvailableTableSpace_ThrowException() {
+
+    }
+
+    /**
+     * Test for method checkInGuest()
+     * Input: guest name "Jon Snow" and accompanying guest = 2.
+     * //
+     * Guest repository returns guest name while checks that the guest booked a table.
+     * Guest repository returns 1 updated row while checks availability of the table's space and
+     * change information about arrived guest.
+     * Guest repository doesn't return guest name the second time.
+     * Output: an ExerciseServiceException exception must be thrown.
+     */
+    @Test
+    public void givenArrivedGuest_SomeServiceException_ThrowException() {
+
     }
 }

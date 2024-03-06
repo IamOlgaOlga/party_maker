@@ -61,8 +61,23 @@ public class GuestService {
         return savedName;
     }
 
+    /**
+     * Method provides a guests list who booked tables.
+     * @return a guests list.
+     */
     public List<Guest> getGuestList() {
         log.debug("Call DB to get guest list");
         return guestRepository.getGuestList();
+    }
+
+    /**
+     * Method checks availability of the table's space for arrived guests and return the guest's name in case success.
+     * Throw an exception in case unavailable space at the table.
+     * @param name main guest's name
+     * @param accompanyingGuests main guest's accompanying friends.
+     * @return main guest's name or throw an axception.
+     */
+    public String checkInGuest(String name, int accompanyingGuests) {
+        return "";
     }
 }

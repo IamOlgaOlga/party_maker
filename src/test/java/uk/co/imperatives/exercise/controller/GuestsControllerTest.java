@@ -8,6 +8,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.co.imperatives.exercise.dto.GuestRequest;
+import uk.co.imperatives.exercise.exception.ExerciseServiceException;
 import uk.co.imperatives.exercise.repository.data.Guest;
 import uk.co.imperatives.exercise.service.GuestService;
 
@@ -20,6 +21,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -72,11 +74,11 @@ public class GuestsControllerTest {
 
     /**
      * This test checks the POST method /guest_list/{name} of PartyMakerController controller.
-     * In negative case (table number is not given) it should return status 400 and response body with error.
+     * In negative case (accompanying guests number is not given) it should return status 400 and response body with error.
      */
     @Test
     public void givenNegativeTableInPostGuestRequestNotGiven_Return400AndError() throws Exception {
-        GuestRequest guestRequest = new GuestRequest(null, null, 2);
+        GuestRequest guestRequest = new GuestRequest(null, 2, null);
         String guestName = "Jon Snow";
         given(guestService.addGuest(anyString(), anyInt(), anyInt())).willReturn(guestName);
 
@@ -85,7 +87,7 @@ public class GuestsControllerTest {
                         .content(new ObjectMapper().writeValueAsString(guestRequest)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string(containsString("Request validation error")))
-                .andExpect(content().string(containsString("Guest must be assigned to the table")));
+                .andExpect(content().string(containsString("Accompanying guests field must not be null")));
     }
 
     /**
@@ -128,5 +130,40 @@ public class GuestsControllerTest {
         mockMvc.perform(get("/guest_list"))
                 .andExpect(status().isOk())
                 .andExpect(content().json(resultBodyResponse));
+    }
+
+    /**
+     * This test checks the PUT /guests/{name} method.
+     * A guest may arrive with his friends that are not the size indicated at the guest list.
+     * Table is expected to have space for the extras, allow them to come -- returns the guest's name and status 200.
+     */
+    @Test
+    public void givenCorrectPutGuestRequest_Return200AndGuestName() throws Exception {
+        GuestRequest guestRequest = new GuestRequest(null, null, 2);
+        String guestName = "Jon Snow";
+        given(guestService.checkInGuest(anyString(), anyInt())).willReturn(guestName);
+
+        mockMvc.perform(put("/guests/{name}", guestName)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(guestRequest)))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString(guestName)));
+    }
+
+    /**
+     * This test checks the PUT /guests/{name} method.
+     * A guest may arrive with his friends that are not the size indicated at the guest list.
+     * Table is expected to have space for the extras, allow them to come -- returns the guest's name and status 200.
+     */
+    @Test
+    public void givenCorrectPutGuestRequest_NotAvailableSpace_ReturnStatus400() throws Exception {
+        GuestRequest guestRequest = new GuestRequest(null, null, 2);
+        String guestName = "Jon Snow";
+        given(guestService.checkInGuest(anyString(), anyInt())).willThrow(ExerciseServiceException.class);
+
+        mockMvc.perform(put("/guests/{name}", guestName)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(guestRequest)))
+                .andExpect(status().isBadRequest());
     }
 }
