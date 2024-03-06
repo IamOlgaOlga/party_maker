@@ -2,7 +2,6 @@ package uk.co.imperatives.exercise.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.relational.core.sql.In;
 import org.springframework.stereotype.Service;
 import uk.co.imperatives.exercise.exception.ExerciseServiceBadRequestException;
 import uk.co.imperatives.exercise.exception.ExerciseServiceException;
@@ -29,19 +28,18 @@ public class TableService {
      * @return added table ID
      */
     public int addTable(int id, int capacity) {
-        if (tableRepository.getTableId(id) != null) {
-            var errorMessage = "The table with ID = " + id + " already exists";
+        if (tableRepository.exists(id)) {
+            var errorMessage = String.format("Table with ID = %d already exists", id);
             log.error(errorMessage);
             throw new ExerciseServiceBadRequestException(errorMessage);
         }
-        tableRepository.saveTable(new Table(id, capacity));
-        var savedTableId = tableRepository.getTableId(id);
-        if (savedTableId == null) {
-            var errorMessage = "An error occurs while saving a new guest";
+        var insertedRows = tableRepository.saveTable(new Table(id, capacity));
+        if (insertedRows == 0) {
+            var errorMessage = "An error occurs while saving a new table";
             log.error(errorMessage);
             throw new ExerciseServiceException(errorMessage);
         }
-        return savedTableId;
+        return id;
     }
 
     public List<Table> getTablesList() {
@@ -49,13 +47,24 @@ public class TableService {
         return tableRepository.getTableList();
     }
 
+    /**
+     * Update table's capacity by ID.
+     * @param id table's ID
+     * @param capacity new table's capacity
+     * @return updated table ID
+     */
     public Integer updateTable(int id, int capacity) {
-        if (tableRepository.getTableId(id) == null) {
-            var errorMessage = "Table with ID = " + id + " does not exist";
+        if (!tableRepository.exists(id)) {
+            var errorMessage = String.format("Table with ID = %d does not exist", id);
             log.error(errorMessage);
             throw new ExerciseServiceBadRequestException(errorMessage);
         }
-        tableRepository.updateTable(new Table(id, capacity));
-        return tableRepository.getTableId(id);
+        var updatedRows = tableRepository.updateTable(new Table(id, capacity));
+        if (1 != updatedRows) {
+            var errorMessage = "Error in DB while table capacity update";
+            log.error(errorMessage);
+            throw new ExerciseServiceException(errorMessage);
+        }
+        return id;
     }
 }

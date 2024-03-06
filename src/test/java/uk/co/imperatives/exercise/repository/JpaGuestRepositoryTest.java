@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -32,31 +33,35 @@ public class JpaGuestRepositoryTest {
     private JpaGuestRepository repository;
 
     /**
-     * Test for the getGuestName() method.
+     * Test for the exists() method.
      * Input: guest with name "Jon Snow".
-     * Repository can find this guest and return the name.
-     * Output: correct guest name.
+     * Repository can find this guest and return true.
+     * Output: true.
      */
     @Test
     public void givenGuestExists_ReturnName() {
-        String guestName = "Jon Snow";
-        given(jdbcTemplate.queryForObject(anyString(), eq(String.class), eq(guestName))).willReturn(guestName);
-        assertEquals(repository.getGuestName(new Guest(guestName, 1, 1)), guestName);
-        verify(jdbcTemplate, times(1)).queryForObject(anyString(), eq(String.class), eq(guestName));
+        var guestName = "Jon Snow";
+        var tableId = 1;
+        var totalGuests = 1;
+        given(jdbcTemplate.queryForObject(anyString(), eq(Boolean.class), eq(guestName))).willReturn(true);
+        assertTrue(repository.exists(new Guest(guestName, tableId, totalGuests)));
+        verify(jdbcTemplate, times(1)).queryForObject(anyString(), eq(Boolean.class), eq(guestName));
     }
 
     /**
-     * Test for the getGuestName() method.
+     * Test for the exists() method.
      * Input: guest with name "Jon Snow".
-     * Repository can't find this guest in DB and throw EmptyResultDataAccessException exception.
-     * Output: null.
+     * Repository can't find this guest in DB and return null.
+     * Output: false.
      */
     @Test
     public void givenGuestDoesNotExist_ReturnNull() {
-        String guestName = "Jon Snow";
-        given(jdbcTemplate.queryForObject(anyString(), eq(String.class), eq(guestName))).willThrow(new EmptyResultDataAccessException(1));
-        assertNull(repository.getGuestName(new Guest(guestName, 1, 1)));
-        verify(jdbcTemplate, times(1)).queryForObject(anyString(), eq(String.class), eq(guestName));
+        var guestName = "Jon Snow";
+        var tableId = 1;
+        var totalGuests = 1;
+        given(jdbcTemplate.queryForObject(anyString(), eq(Boolean.class), eq(guestName))).willReturn(null);
+        assertFalse(repository.exists(new Guest(guestName, tableId, totalGuests)));
+        verify(jdbcTemplate, times(1)).queryForObject(anyString(), eq(Boolean.class), eq(guestName));
     }
 
     /**
@@ -97,17 +102,5 @@ public class JpaGuestRepositoryTest {
         given(jdbcTemplate.queryForList(anyString())).willThrow(new EmptyResultDataAccessException(1));
         assertTrue(repository.getGuestList().isEmpty());
         verify(jdbcTemplate, times(1)).queryForList(anyString());
-    }
-
-    /**
-     * Test for the updateArrivedGuest() method.
-     */
-    @Test
-    public void givenAvailableSpaceAtTableInDB_Return1() {
-        String guestName = "Jon Snow";
-        int accompanyingGuests = 2;
-        given(jdbcTemplate.update(anyString(),eq(guestName), eq(accompanyingGuests))).willReturn(1);
-        assertTrue(repository.getGuestList().isEmpty());
-        verify(jdbcTemplate, times(1)).update(anyString(),eq(guestName), eq(accompanyingGuests));
     }
 }

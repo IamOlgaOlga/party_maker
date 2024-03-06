@@ -6,7 +6,6 @@ import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import uk.co.imperatives.exercise.exception.ExerciseServiceException;
 import uk.co.imperatives.exercise.repository.data.Table;
 
 import java.util.ArrayList;
@@ -15,8 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -68,49 +66,53 @@ public class JpaTableRepositoryTest {
 
     /**
      * Input: table ID for the table which exists in DB
-     * Output: table ID
+     * Table ID exists in DB.
+     * Output: true
      */
     @Test
     public void givenTableIdForExistedTable_ReturnTableId() {
         int tableId = 1;
-        given(jdbcTemplate.queryForObject(anyString(), eq(Integer.class), eq(tableId))).willReturn(tableId);
-        assertEquals(tableId, repository.getTableId(tableId));
-        verify(jdbcTemplate, times(1)).queryForObject(anyString(), eq(Integer.class), eq(tableId));
+        given(jdbcTemplate.queryForObject(anyString(), eq(Boolean.class), eq(tableId))).willReturn(true);
+        assertTrue(repository.exists(tableId));
+        verify(jdbcTemplate, times(1)).queryForObject(anyString(), eq(Boolean.class), eq(tableId));
     }
 
     /**
      * Input: table ID for the table which exists in DB
-     * Output: table ID
+     * Table ID does not exist in DB
+     * Output: false
      */
     @Test
     public void givenTableIdForNotExistedTable_ReturnNull() {
         int tableId = 1;
-        given(jdbcTemplate.queryForObject(anyString(), eq(Integer.class), eq(tableId))).willThrow(new EmptyResultDataAccessException(1));
-        assertNull(repository.getTableId(tableId));
-        verify(jdbcTemplate, times(1)).queryForObject(anyString(), eq(Integer.class), eq(tableId));
+        given(jdbcTemplate.queryForObject(anyString(), eq(Boolean.class), eq(tableId))).willReturn(null);
+        assertFalse(repository.exists(tableId));
+        verify(jdbcTemplate, times(1)).queryForObject(anyString(), eq(Boolean.class), eq(tableId));
     }
 
     /**
+     * Input: table with id = 1 and capacity = 2
      * Jdbc template can update table's information in DB
+     * Output: 1 updated row
      */
     @Test
     public void givenCorrectTableCapacityUpdate_NothingIsThrown(){
         Table table = new Table(1, 2);
         given(jdbcTemplate.update(anyString(),eq(table.getCapacity()), eq(table.getId()))).willReturn(1);
-        repository.updateTable(table);
+        assertEquals(1, repository.updateTable(table));
         verify(jdbcTemplate, times(1)).update(anyString(),eq(table.getCapacity()), eq(table.getId()));
     }
 
     /**
+     * Input: table with id = 1 and capacity = 2
      * Jdbc template cannot update table's information in DB
-     * Exception will be thrown
+     * Output: 0 updated rows
      */
     @Test
     public void givenIncorrectTableCapacityUpdate_ExceptionIsThrown(){
         Table table = new Table(1, 2);
         given(jdbcTemplate.update(anyString(),eq(table.getCapacity()), eq(table.getId()))).willReturn(0);
-        Exception exception = assertThrows(ExerciseServiceException.class, () -> repository.updateTable(table));
-        assertEquals(exception.getMessage(), "Error in DB while table capacity update");
+        assertEquals(0, repository.updateTable(table));
         verify(jdbcTemplate, times(1)).update(anyString(),eq(table.getCapacity()), eq(table.getId()));
     }
 }
