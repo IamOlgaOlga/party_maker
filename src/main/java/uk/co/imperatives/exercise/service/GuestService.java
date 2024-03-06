@@ -22,47 +22,40 @@ public class GuestService {
 
     /**
      * Save a new guest to DB in case if there are seats available for specific table.
-     * @param name new guest name
-     * @param tableNumber table number for reservation
+     *
+     * @param name               new guest name
+     * @param tableNumber        table number for reservation
      * @param accompanyingGuests main guest's accompanying guests
      * @return guest name in case success processing.
      */
-    public String addGuest(String name, int tableNumber, int accompanyingGuests){
-        Guest guest = new Guest();
-        guest.setName(name);
-        guest.setTableNumber(tableNumber);
-        guest.setAccompanyingGuests(accompanyingGuests);
+    public String addGuest(String name, int tableNumber, int accompanyingGuests) {
+        // We always store a total number of guests
+        var guest = new Guest(name, tableNumber, accompanyingGuests + 1);
         // Check if the guest already exists
-        if (guestRepository.getGuestName(guest) != null) {
-            var errorMessage = "Guest with name " + guest.getName() + "already exists";
+        if (guestRepository.exists(guest)) {
+            var errorMessage = String.format("Guest with name %s already exists", guest.getName());
             log.error(errorMessage);
             throw new ExerciseServiceBadRequestException(errorMessage);
         }
-        //Check if the table exists
-        if(tableRepository.getTableId(tableNumber) == null) {
-            var errorMessage = "There is no table with ID = " + tableNumber;
+        // Check if the table exists
+        if (!tableRepository.exists(tableNumber)) {
+            var errorMessage = String.format("There is no table with ID = %d", tableNumber);
             log.error(errorMessage);
             throw new ExerciseServiceBadRequestException(errorMessage);
         }
-        // Check available seats
-        if (accompanyingGuests + 1 > tableRepository.getTableAvailableSeats(tableNumber)) {
-            var errorMessage = "There is no available seats for table ID = " + tableNumber;
+
+        var rowsAffected = guestRepository.saveGuest(guest);
+        if (rowsAffected == 0) {
+            var errorMessage = String.format("There is no free space at the table with ID = %d", tableNumber);
             log.error(errorMessage);
             throw new ExerciseServiceBadRequestException(errorMessage);
         }
-        log.debug("Try to insert new values to guests DB table");
-        guestRepository.saveGuest(guest);
-        var savedName = guestRepository.getGuestName(guest);
-        if (savedName == null) {
-            var errorMessage = "An error occurs while saving a new guest";
-            log.error(errorMessage);
-            throw new ExerciseServiceException(errorMessage);
-        }
-        return savedName;
+        return name;
     }
 
     /**
      * Method provides a guests list who booked tables.
+     *
      * @return a guests list.
      */
     public List<Guest> getGuestList() {
@@ -73,7 +66,8 @@ public class GuestService {
     /**
      * Method checks availability of the table's space for arrived guests and return the guest's name in case success.
      * Throw an exception in case unavailable space at the table.
-     * @param name main guest's name
+     *
+     * @param name               main guest's name
      * @param accompanyingGuests main guest's accompanying friends.
      * @return main guest's name or throw an axception.
      */

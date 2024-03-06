@@ -9,6 +9,7 @@ import uk.co.imperatives.exercise.repository.data.Guest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Repository works with an information about guests in application's DB.
@@ -17,20 +18,45 @@ import java.util.Map;
 @Repository
 public class JpaGuestRepository {
 
-    private final String SQL_INSERT_GUEST = "INSERT INTO guests (name, tableNumber, accompanyingGuests) VALUES ( ?, ?, ?);";
+    private final String SQL_INSERT_GUEST = """
+                    WITH taken_places AS
+                    	(SELECT SUM(total_guests) AS people, table_number 
+                    	    FROM guests 
+                    	    GROUP BY table_number)
+                    INSERT INTO guests (name, table_number, total_guests)
+                    SELECT ?, ?, ?
+                    WHERE ? <= (SELECT (capacity - COALESCE(people, 0)) 
+                                    FROM tables JOIN taken_places 
+                                    ON table_number = id 
+                                    WHERE id = ?);
+            """;
 
-    private final String SQL_GET_GUEST_NAME = "SELECT name FROM guests WHERE name = :newGuestName;";
+    private final String SQL_GET_GUEST_NAME = "SELECT name FROM guests WHERE name = ?;";
 
-    private final String SQL_SELECT_ALL_FROM_GUESTS = "SELECT * FROM GUESTS;";
+    private final String SQL_EXISTS_GUEST_NAME = "SELECT EXISTS (SELECT 1 FROM guests WHERE name=?);";
+
+    private final String SQL_SELECT_ALL_FROM_GUESTS = "SELECT * FROM guests;";
 
     private JdbcTemplate jdbcTemplate;
 
     /**
      * Insert a new guest to DB table and return its name.
      * @param guest information about guest (name, table number, accompanying guests)
+     * @return number of inserted rows
      */
-    public void saveGuest(Guest guest) {
-        jdbcTemplate.update(SQL_INSERT_GUEST, guest.getName(), guest.getTableNumber(), guest.getAccompanyingGuests());
+    public int saveGuest(Guest guest) {
+        return jdbcTemplate.update(SQL_INSERT_GUEST,
+                guest.getName(), guest.getTableNumber(), guest.getTotalGuests(), guest.getTotalGuests(), guest.getTableNumber());
+    }
+
+    /**
+     * Check if guest exists in DB.
+     * @param guest information about guest.
+     * @return true if guest exists else false.
+     */
+    public boolean exists(Guest guest) {
+        return Optional.ofNullable(jdbcTemplate.queryForObject(SQL_EXISTS_GUEST_NAME, Boolean.class, guest.getName()))
+                .orElse(false);
     }
 
     /**
@@ -39,11 +65,7 @@ public class JpaGuestRepository {
      * @return guest's name from DB or null result if it doesn't exist.
      */
     public String getGuestName(Guest guest) {
-        try {
-            return jdbcTemplate.queryForObject(SQL_GET_GUEST_NAME, String.class, guest.getName());
-        } catch (EmptyResultDataAccessException e){
-            return null;
-        }
+        return jdbcTemplate.queryForObject(SQL_GET_GUEST_NAME, String.class, guest.getName());
     }
 
     /**

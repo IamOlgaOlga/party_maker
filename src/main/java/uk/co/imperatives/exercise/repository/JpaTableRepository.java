@@ -6,11 +6,13 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import uk.co.imperatives.exercise.exception.ExerciseServiceException;
+import uk.co.imperatives.exercise.repository.data.Guest;
 import uk.co.imperatives.exercise.repository.data.Table;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Repository for table entity in DB
@@ -21,15 +23,17 @@ import java.util.Map;
 public class JpaTableRepository {
 
     private final static String SQL_GET_AVAILABLE_TABLE = """
-            WITH table_availability AS\s
+            WITH table_availability AS
             (SELECT tableNumber, SUM(accompanyingGuests) + COUNT(*) as guestsFullCount FROM guests
-                WHERE tableNumber = 1 GROUP BY tableNumber)
+                WHERE tableNumber = ? GROUP BY tableNumber)
             SELECT capacity - guestsFullCount FROM tables JOIN table_availability ON tableNumber = id;
             """;
 
     private final static String SQL_GET_TABLE_LIST = "SELECT * FROM tables;";
 
     private final static String SQL_GET_TABLE_ID = "SELECT id FROM tables WHERE id = ?;";
+
+    private final static String SQL_EXISTS_TABLE = "SELECT EXISTS (SELECT 1 FROM tables WHERE id=?);";
 
     private final static String SQL_SAVE_TABLE = "INSERT INTO tables (id, capacity) VALUES (?, ?);";
 
@@ -71,11 +75,17 @@ public class JpaTableRepository {
      * @return table ID if it exists else null.
      */
     public Integer getTableId(int id) {
-        try {
-            return jdbcTemplate.queryForObject(SQL_GET_TABLE_ID, Integer.class, id);
-        } catch (EmptyResultDataAccessException e){
-            return null;
-        }
+        return jdbcTemplate.queryForObject(SQL_GET_TABLE_ID, Integer.class, id);
+    }
+
+    /**
+     * Check if table exists in DB.
+     * @param id table ID.
+     * @return true if table exists else false.
+     */
+    public boolean exists(int id) {
+        return Optional.ofNullable(jdbcTemplate.queryForObject(SQL_EXISTS_TABLE, Boolean.class, id))
+                .orElse(false);
     }
 
     /**

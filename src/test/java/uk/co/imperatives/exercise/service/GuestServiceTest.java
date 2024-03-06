@@ -188,9 +188,9 @@ public class GuestServiceTest {
         List<Guest> resultList = guestService.getGuestList();
         assertEquals(resultList.size(), 2);
         assertTrue(resultList.stream().anyMatch(guest -> "Jon Snow".equals(guest.getName())
-                        && 1 == guest.getTableNumber() && 2 == guest.getAccompanyingGuests()));
+                        && 1 == guest.getTableNumber() && 2 == guest.getTotalGuests()));
         assertTrue(resultList.stream().anyMatch(guest -> "Arya Stark".equals(guest.getName())
-                && 2 == guest.getTableNumber() && 7 == guest.getAccompanyingGuests()));
+                && 2 == guest.getTableNumber() && 7 == guest.getTotalGuests()));
         verify(guestRepository, times(1)).getGuestList();
     }
 

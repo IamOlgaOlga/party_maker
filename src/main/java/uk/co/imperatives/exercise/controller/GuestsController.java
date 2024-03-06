@@ -43,7 +43,7 @@ public class GuestsController {
         log.debug("Receive a new GET request to provide guest list.");
         List<GuestRequest> guestList = new ArrayList<>();
         guestService.getGuestList().forEach(guest -> guestList.add(new GuestRequest(guest.getName(),
-                guest.getTableNumber(), guest.getAccompanyingGuests())));
+                guest.getTableNumber(), guest.getTotalGuests())));
         return new GuestListResponse(guestList);
     }
 
