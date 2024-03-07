@@ -5,6 +5,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import uk.co.imperatives.exercise.exception.ExerciseServiceBadRequestException;
+import uk.co.imperatives.exercise.exception.ExerciseServiceException;
 import uk.co.imperatives.exercise.repository.JpaGuestRepository;
 import uk.co.imperatives.exercise.repository.JpaTableRepository;
 import uk.co.imperatives.exercise.repository.data.Guest;
@@ -41,7 +42,7 @@ public class GuestServiceTest {
 
     /**
      * Test for the addGuest() method.
-     * Input: guest Name = "Guest Name", tableId = 1, accompanying guests = 1, available seats on table 1 is 2.
+     * Input: guest Name = "Jon Snow", tableId = 1, accompanying guests = 1, available seats on table 1 is 2.
      * //
      * The guestRepository will return false while check that guest exists.
      * The tableRepository will return true while check if table exists.
@@ -50,7 +51,7 @@ public class GuestServiceTest {
      */
     @Test
     public void givenGuestInfo_AvailableSeats_SaveToDbAndReturnName(){
-        String guestName = "Guest Name";
+        var guestName = "Jon Snow";
         int tableId = 1;
         int accompanyingGuests = 1;
         given(guestRepository.exists(any(Guest.class))).willReturn(false);
@@ -65,7 +66,7 @@ public class GuestServiceTest {
 
     /**
      * Test for the addGuest() method.
-     * Input: guest Name = "Guest Name", tableId = 1, accompanying guests = 1, available seats on table 1 is 1.
+     * Input: guest Name = "Jon Snow", tableId = 1, accompanying guests = 1, available seats on table 1 is 1.
      * //
      * The guestRepository will return false while check that guest exists.
      * The tableRepository will return true while check if table exists.
@@ -74,7 +75,7 @@ public class GuestServiceTest {
      */
     @Test
     public void givenGuestInfo_NotAvailableSeats_ThrowException(){
-        String guestName = "Guest Name";
+        var guestName = "Jon Snow";
         int tableId = 1;
         int accompanyingGuests = 1;
         given(guestRepository.exists(any(Guest.class))).willReturn(false);
@@ -82,7 +83,8 @@ public class GuestServiceTest {
         given(guestRepository.saveGuest(any(Guest.class))).willReturn(0);
         //
         Exception exception = assertThrows(ExerciseServiceBadRequestException.class,
-                () -> guestService.addGuest(guestName, tableId, accompanyingGuests));
+                () -> guestService.addGuest(guestName, tableId, accompanyingGuests)
+        );
         assertEquals(String.format("There is no free space at the table with ID = %d", tableId), exception.getMessage());
         verify(guestRepository, times(1)).exists(any(Guest.class));
         verify(tableRepository, times(1)).exists(eq(tableId));
@@ -91,20 +93,21 @@ public class GuestServiceTest {
 
     /**
      * Test for the addGuest() method.
-     * Input: guest Name = "Guest Name", tableId = 1, accompanying guests = 1.
+     * Input: guest Name = "Jon Snow", tableId = 1, accompanying guests = 1.
      * //
      * The guestRepository will return true while check that guest exists.
      * Output: an ExerciseServiceBadRequestException exception must be thrown.
      */
     @Test
     public void givenExistedGuestName_ThrowAnException(){
-        var guestName = "Guest Name";
+        var guestName = "Jon Snow";
         int tableId = 1;
         int accompanyingGuests = 1;
         given(guestRepository.exists(any(Guest.class))).willReturn(true);
         //
         Exception exception = assertThrows(ExerciseServiceBadRequestException.class,
-                () -> guestService.addGuest(guestName, tableId, accompanyingGuests));
+                () -> guestService.addGuest(guestName, tableId, accompanyingGuests)
+        );
         assertEquals(String.format("Guest with name %s already exists", guestName), exception.getMessage());
         verify(guestRepository, times(1)).exists(any(Guest.class));
         verify(tableRepository, times(0)).exists(anyInt());
@@ -113,7 +116,7 @@ public class GuestServiceTest {
 
     /**
      * Test for the addGuest() method.
-     * Input: guest Name = "Guest Name", tableId = 1, accompanying guests = 1, available seats on table 1 is 2.
+     * Input: guest Name = "Jon Snow", tableId = 1, accompanying guests = 1, available seats on table 1 is 2.
      * //
      * The guestRepository will return false while check that guest exists.
      * The tableRepository will return false while check if table exists.
@@ -121,14 +124,15 @@ public class GuestServiceTest {
      */
     @Test
     public void givenNotExistedTableWhileSavingGuest_ThrowAnException(){
-        var guestName = "Guest Name";
+        var guestName = "Jon Snow";
         int tableId = 1;
         int accompanyingGuests = 1;
         given(guestRepository.exists(any(Guest.class))).willReturn(false);
         given(tableRepository.exists(eq(tableId))).willReturn(false);
         //
         Exception exception = assertThrows(ExerciseServiceBadRequestException.class,
-                () -> guestService.addGuest(guestName, tableId, accompanyingGuests));
+                () -> guestService.addGuest(guestName, tableId, accompanyingGuests)
+        );
         assertEquals(String.format("There is no table with ID = %d", tableId), exception.getMessage());
         verify(guestRepository, times(1)).exists(any(Guest.class));
         verify(tableRepository, times(1)).exists(anyInt());
@@ -146,8 +150,8 @@ public class GuestServiceTest {
      */
     @Test
     public void givenRequestForGuestList_ReturnTheCorrectListOfGuests() {
-        Guest guest1 = new Guest("Jon Snow", 1, 2);
-        Guest guest2 = new Guest("Arya Stark", 2, 7);
+        var guest1 = new Guest("Jon Snow", 1, 2);
+        var guest2 = new Guest("Arya Stark", 2, 7);
         List<Guest> guestList = new ArrayList<>(2);
         guestList.add(guest1);
         guestList.add(guest2);
@@ -155,9 +159,11 @@ public class GuestServiceTest {
         List<Guest> resultList = guestService.getGuestList();
         assertEquals(2, resultList.size());
         assertTrue(resultList.stream().anyMatch(guest -> "Jon Snow".equals(guest.getName())
-                        && 1 == guest.getTableNumber() && 2 == guest.getTotalGuests()));
+                        && 1 == guest.getTableNumber() && 2 == guest.getTotalGuests())
+        );
         assertTrue(resultList.stream().anyMatch(guest -> "Arya Stark".equals(guest.getName())
-                && 2 == guest.getTableNumber() && 7 == guest.getTotalGuests()));
+                && 2 == guest.getTableNumber() && 7 == guest.getTotalGuests())
+        );
         verify(guestRepository, times(1)).getGuestList();
     }
 
@@ -173,7 +179,7 @@ public class GuestServiceTest {
      */
     @Test
     public void givenArrivedGuest_TableHasSpace_ReturnGuestName() {
-        String guestName = "Guest Name";
+        var guestName = "Jon Snow";
         int accompanyingGuests = 1;
         given(guestRepository.exists(any(Guest.class))).willReturn(true);
         given(guestRepository.updateArrivedGuest(any(Guest.class))).willReturn(1);
@@ -192,11 +198,12 @@ public class GuestServiceTest {
      */
     @Test
     public void givenArrivedGuest_GuestDidNotBookTable_ThrowException() {
-        String guestName = "Guest Name";
+        var guestName = "Jon Snow";
         int accompanyingGuests = 1;
         given(guestRepository.exists(any(Guest.class))).willReturn(false);
         Exception exception = assertThrows(ExerciseServiceBadRequestException.class,
-                () -> guestService.checkInGuest(guestName, accompanyingGuests));
+                () -> guestService.checkInGuest(guestName, accompanyingGuests)
+        );
         assertEquals(String.format("Guest with name %s did not book a table", guestName), exception.getMessage());
         verify(guestRepository, times(1)).exists(any(Guest.class));
         verify(guestRepository, times(0)).updateArrivedGuest(any(Guest.class));
@@ -214,17 +221,79 @@ public class GuestServiceTest {
      */
     @Test
     public void givenArrivedGuest_NotAvailableTableSpace_ThrowException() {
-        String guestName = "Guest Name";
+        var guestName = "Jon Snow";
         int accompanyingGuests = 1;
         given(guestRepository.exists(any(Guest.class))).willReturn(true);
         given(guestRepository.updateArrivedGuest(any(Guest.class))).willReturn(0);
         Exception exception = assertThrows(ExerciseServiceBadRequestException.class,
-                () -> guestService.checkInGuest(guestName, accompanyingGuests));
+                () -> guestService.checkInGuest(guestName, accompanyingGuests)
+        );
         assertEquals(
                 String.format("Booked table does not have available space for %d people (main guest name is %s)",
                         accompanyingGuests + 1, guestName),
-                exception.getMessage());
+                exception.getMessage()
+        );
         verify(guestRepository, times(1)).exists(any(Guest.class));
         verify(guestRepository, times(1)).updateArrivedGuest(any(Guest.class));
+    }
+
+    /**
+     * Test for method delete().
+     * Input: guest with name Jon Snow
+     * //
+     * Guest repository returns true while checks that the guest booked a table and exists in DB.
+     * Guest repository returns 1 removed row while delete a guest from DB.
+     * Output: guest's name
+     */
+    @Test
+    public void givenExistedGuest_RemoveGuestAndReturnName() {
+        var guestName = "Jon Snow";
+        given(guestRepository.arrived(any(Guest.class))).willReturn(true);
+        given(guestRepository.deleteGuest(any(Guest.class))).willReturn(1);
+        assertThat(guestService.delete(guestName), equalTo(guestName));
+        verify(guestRepository, times(1)).arrived(any(Guest.class));
+        verify(guestRepository, times(1)).deleteGuest(any(Guest.class));
+    }
+
+    /**
+     * Test for method delete().
+     * Input: guest with name Jon Snow
+     * //
+     * Guest repository returns false while checks that the guest booked a table and exists in DB.
+     * Output: an ExerciseServiceBadRequestException exception must be thrown.
+     */
+    @Test
+    public void givenNotArrivedGuest_ThrowException() {
+        var guestName = "Jon Snow";
+        given(guestRepository.arrived(any(Guest.class))).willReturn(false);
+        Exception exception = assertThrows(ExerciseServiceBadRequestException.class,
+                () -> guestService.delete(guestName)
+        );
+        assertEquals(String.format("Guest with name %s did not arrive to the party", guestName), exception.getMessage());
+        verify(guestRepository, times(1)).arrived(any(Guest.class));
+        verify(guestRepository, times(0)).deleteGuest(any(Guest.class));
+    }
+
+    /**
+     * Test for method delete().
+     * Input: guest with name Jon Snow
+     * //
+     * Guest repository returns true while checks that the guest booked a table and exists in DB.
+     * Guest repository returns 0 removed row while delete a guest from DB.
+     * Output: an ExerciseServiceException exception must be thrown.
+     */
+    @Test
+    public void givenNotExistedGuest_ThrowException() {
+        var guestName = "Jon Snow";
+        given(guestRepository.arrived(any(Guest.class))).willReturn(true);
+        given(guestRepository.deleteGuest(any(Guest.class))).willReturn(0);
+        Exception exception = assertThrows(ExerciseServiceException.class,
+                () -> guestService.delete(guestName)
+        );
+        assertEquals(String.format("Some errors occurs while removing the guest with name = %s", guestName),
+                exception.getMessage()
+        );
+        verify(guestRepository, times(1)).arrived(any(Guest.class));
+        verify(guestRepository, times(1)).deleteGuest(any(Guest.class));
     }
 }

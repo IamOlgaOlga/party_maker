@@ -45,7 +45,7 @@ public class JpaGuestRepositoryTest {
      * Output: true.
      */
     @Test
-    public void givenGuestExists_ReturnName() {
+    public void givenGuestExists_ReturnTrue() {
         var guestName = "Jon Snow";
         var tableId = 1;
         var totalGuests = 1;
@@ -57,16 +57,48 @@ public class JpaGuestRepositoryTest {
     /**
      * Test for the exists() method.
      * Input: guest with name "Jon Snow".
-     * Repository can't find this guest in DB and return null.
+     * Repository can't find this guest in DB and return false.
      * Output: false.
      */
     @Test
-    public void givenGuestDoesNotExist_ReturnNull() {
+    public void givenGuestDoesNotExist_ReturnFalse() {
         var guestName = "Jon Snow";
         var tableId = 1;
         var totalGuests = 1;
         given(jdbcTemplate.queryForObject(anyString(), eq(Boolean.class), eq(guestName))).willReturn(null);
         assertFalse(repository.exists(new Guest(guestName, tableId, totalGuests)));
+        verify(jdbcTemplate, times(1)).queryForObject(anyString(), eq(Boolean.class), eq(guestName));
+    }
+
+    /**
+     * Test for the arrived() method.
+     * Input: guest with name "Jon Snow".
+     * Repository can find this guest an arrived list and return true.
+     * Output: true.
+     */
+    @Test
+    public void givenGuestArrived_ReturnTrue() {
+        var guestName = "Jon Snow";
+        var tableId = 1;
+        var totalGuests = 1;
+        given(jdbcTemplate.queryForObject(anyString(), eq(Boolean.class), eq(guestName))).willReturn(true);
+        assertTrue(repository.arrived(new Guest(guestName, tableId, totalGuests)));
+        verify(jdbcTemplate, times(1)).queryForObject(anyString(), eq(Boolean.class), eq(guestName));
+    }
+
+    /**
+     * Test for the arrived() method.
+     * Input: guest with name "Jon Snow".
+     * Repository can't find this guest in arrived list and return false.
+     * Output: false.
+     */
+    @Test
+    public void givenGuestDidNotArrive_ReturnFalse() {
+        var guestName = "Jon Snow";
+        var tableId = 1;
+        var totalGuests = 1;
+        given(jdbcTemplate.queryForObject(anyString(), eq(Boolean.class), eq(guestName))).willReturn(null);
+        assertFalse(repository.arrived(new Guest(guestName, tableId, totalGuests)));
         verify(jdbcTemplate, times(1)).queryForObject(anyString(), eq(Boolean.class), eq(guestName));
     }
 
@@ -164,5 +196,34 @@ public class JpaGuestRepositoryTest {
         given(namedParameterJdbcTemplate.update(anyString(), any(SqlParameterSource.class))).willReturn(0);
         assertEquals(0, repository.updateArrivedGuest(guest));
         verify(namedParameterJdbcTemplate, times(1)).update(anyString(), any(SqlParameterSource.class));
+    }
+
+    /**
+     * Test for deleteGuest() method.
+     * Input: guest Jon Snow, table ID = null, total guest = null.
+     * JDBC template returns 1 removed row.
+     * Output: returns 1.
+     */
+    @Test
+    public void givenGuest_RemovedFromDB_ReturnOneAffectedRow() {
+        var guest = new Guest("Jon Snow", null, null);
+        given(jdbcTemplate.update(anyString(),anyString())).willReturn(1);
+        assertEquals(1, repository.deleteGuest(guest));
+        verify(jdbcTemplate, times(1)).update(anyString(), anyString());
+    }
+
+
+    /**
+     * Test for deleteGuest() method.
+     * Input: guest Jon Snow, table ID = null, total guest = null.
+     * JDBC template returns 0 removed row.
+     * Output: returns 0.
+     */
+    @Test
+    public void givenGuest_NotRemovedFromDB_ReturnZeroAffectedRow() {
+        var guest = new Guest("Jon Snow", null, null);
+        given(jdbcTemplate.update(anyString(),anyString())).willReturn(0);
+        assertEquals(0, repository.deleteGuest(guest));
+        verify(jdbcTemplate, times(1)).update(anyString(), anyString());
     }
 }

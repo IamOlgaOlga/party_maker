@@ -94,4 +94,26 @@ public class GuestService {
         }
         return name;
     }
+
+    /**
+     * This method removes guest who leaves the party.
+     * @param name guest's name who leaves a party.
+     * @return guest's name in case successful removing from DB, else throw an exception.
+     */
+    public String delete(String name) {
+        var guest = new Guest(name, null, null);
+        log.debug(String.format("Start removing process for the guest with name = %s", name));
+        if (!guestRepository.arrived(guest)) {
+            var errorMessage = String.format("Guest with name %s did not arrive to the party", guest.getName());
+            log.error(errorMessage);
+            throw new ExerciseServiceBadRequestException(errorMessage);
+        }
+        var rowsAffected = guestRepository.deleteGuest(guest);
+        if (rowsAffected == 0) {
+            var errorMessage = String.format("Some errors occurs while removing the guest with name = %s", name);
+            log.error(errorMessage);
+            throw new ExerciseServiceException(errorMessage);
+        }
+        return name;
+    }
 }

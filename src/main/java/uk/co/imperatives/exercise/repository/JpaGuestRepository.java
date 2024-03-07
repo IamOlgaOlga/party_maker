@@ -20,7 +20,7 @@ import java.util.Optional;
 @Repository
 public class JpaGuestRepository {
 
-    private final String SQL_INSERT_GUEST = """
+    private final static String SQL_INSERT_GUEST = """
                     WITH taken_places AS
                     	(SELECT SUM(total_guests)::int AS people, table_number 
                     	    FROM guests 
@@ -33,11 +33,13 @@ public class JpaGuestRepository {
                                     WHERE id = :tableId);
             """;
 
-    private final String SQL_EXISTS_GUEST_NAME = "SELECT EXISTS (SELECT 1 FROM guests WHERE name=?);";
+    private final static String SQL_EXISTS_GUEST_NAME = "SELECT EXISTS (SELECT 1 FROM guests WHERE name=?);";
 
-    private final String SQL_SELECT_ALL_FROM_GUESTS = "SELECT * FROM guests;";
+    private final static String SQL_EXISTS_ARRIVAL_GUEST_NAME = "SELECT EXISTS (SELECT 1 FROM arrived_guests WHERE name=?);";
 
-    private final String SQL_INSERT_ARRIVAL_GUEST = """
+    private final static String SQL_SELECT_ALL_FROM_GUESTS = "SELECT * FROM guests;";
+
+    private final static String SQL_INSERT_ARRIVAL_GUEST = """
             WITH 
                 taken_places AS
                     (SELECT SUM(count)::int AS people, table_number
@@ -53,6 +55,8 @@ public class JpaGuestRepository {
                                     ON g.table_number = t.table_number
                                     WHERE name = :name);
             """;
+
+    private final static String SQL_DELETE_GUEST = "DELETE FROM arrived_guests WHERE name = ?;";
 
     private JdbcTemplate jdbcTemplate;
 
@@ -79,6 +83,11 @@ public class JpaGuestRepository {
      */
     public boolean exists(Guest guest) {
         return Optional.ofNullable(jdbcTemplate.queryForObject(SQL_EXISTS_GUEST_NAME, Boolean.class, guest.getName()))
+                .orElse(false);
+    }
+
+    public boolean arrived(Guest guest) {
+        return Optional.ofNullable(jdbcTemplate.queryForObject(SQL_EXISTS_ARRIVAL_GUEST_NAME, Boolean.class, guest.getName()))
                 .orElse(false);
     }
 
@@ -114,5 +123,14 @@ public class JpaGuestRepository {
                         .addValue("name", guest.getName())
                         .addValue("guests", guest.getTotalGuests())
         );
+    }
+
+    /**
+     * This method removes the guest from DB.
+     * @param guest guest to delete
+     * @return affected rows
+     */
+    public int deleteGuest(Guest guest) {
+        return jdbcTemplate.update(SQL_DELETE_GUEST, guest.getName());
     }
 }

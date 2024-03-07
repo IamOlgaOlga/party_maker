@@ -9,7 +9,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.co.imperatives.exercise.dto.GuestRequest;
 import uk.co.imperatives.exercise.exception.ExerciseServiceBadRequestException;
-import uk.co.imperatives.exercise.exception.ExerciseServiceException;
 import uk.co.imperatives.exercise.repository.data.Guest;
 import uk.co.imperatives.exercise.service.GuestService;
 
@@ -20,6 +19,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -166,6 +166,33 @@ public class GuestsControllerTest {
         mockMvc.perform(put("/guests/{name}", guestName)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(guestRequest)))
+                .andExpect(status().isBadRequest());
+    }
+
+    /**
+     * Test for the DELETE /guests/{name} method
+     * In positive case controller must return status 200 and guest's name.
+     */
+    @Test
+    public void givenExistedGuest_DeleteGuest_ReturnStatus200AndGuestName() throws Exception{
+        String guestName = "Jon Snow";
+        given(guestService.delete(anyString())).willReturn(guestName);
+
+        mockMvc.perform(delete("/guests/{name}", guestName))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString(guestName)));
+    }
+
+    /**
+     * Test for the DELETE /guests/{name} method
+     * In negative case (guest doesn't exist) controller must return status 400.
+     */
+    @Test
+    public void givenNotExistedGuest_ReturnStatus400() throws Exception{
+        String guestName = "Jon Snow";
+        given(guestService.delete(anyString())).willThrow(ExerciseServiceBadRequestException.class);
+
+        mockMvc.perform(delete("/guests/{name}", guestName))
                 .andExpect(status().isBadRequest());
     }
 }
