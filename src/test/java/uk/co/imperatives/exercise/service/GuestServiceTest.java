@@ -11,6 +11,7 @@ import uk.co.imperatives.exercise.repository.JpaTableRepository;
 import uk.co.imperatives.exercise.repository.data.Guest;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -295,5 +296,35 @@ public class GuestServiceTest {
         );
         verify(guestRepository, times(1)).arrived(any(Guest.class));
         verify(guestRepository, times(1)).deleteGuest(any(Guest.class));
+    }
+
+    /**
+     * Test for the getArrivedGuestList() method.
+     * Input:
+     * guest 1 (name:"Jon Snow", accompanying guests: 2, time arrived: date1);
+     * guest 2 (name:"Arya Stark", accompanying guests: 7, time arrived: date2)
+     * //
+     * The guestRepository will return a list of arrived guests.
+     * Output: the guest service returns a list of Guest objects with correct information.
+     */
+    @Test
+    public void givenRequestForArrivedGuestsList_ReturnTheCorrectListOfGuests() {
+        var date1 = new Date();
+        var guest1 = new Guest("Jon Snow", 2, date1);
+        var date2 = new Date();
+        var guest2 = new Guest("Arya Stark", 7, date2);
+        List<Guest> guestList = new ArrayList<>(2);
+        guestList.add(guest1);
+        guestList.add(guest2);
+        given(guestRepository.getArrivedGuestList()).willReturn(guestList);
+        List<Guest> resultList = guestService.getArrivedGuestList();
+        assertEquals(2, resultList.size());
+        assertTrue(resultList.stream().anyMatch(guest -> "Jon Snow".equals(guest.getName())
+                && 2 == guest.getTotalGuests() && date1.equals(guest.getTimeArrived()))
+        );
+        assertTrue(resultList.stream().anyMatch(guest -> "Arya Stark".equals(guest.getName())
+                && 7 == guest.getTotalGuests() && date2.equals(guest.getTimeArrived()))
+        );
+        verify(guestRepository, times(1)).getArrivedGuestList();
     }
 }

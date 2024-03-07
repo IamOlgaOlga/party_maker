@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import uk.co.imperatives.exercise.repository.data.Guest;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -38,6 +39,8 @@ public class JpaGuestRepository {
     private final static String SQL_EXISTS_ARRIVAL_GUEST_NAME = "SELECT EXISTS (SELECT 1 FROM arrived_guests WHERE name=?);";
 
     private final static String SQL_SELECT_ALL_FROM_GUESTS = "SELECT * FROM guests;";
+
+    private final static String SQL_SELECT_ALL_FROM_ARRIVED_GUESTS = "SELECT * FROM arrived_guests;";
 
     private final static String SQL_INSERT_ARRIVAL_GUEST = """
             WITH 
@@ -100,8 +103,8 @@ public class JpaGuestRepository {
         try {
             List<Map<String, Object>> rows = jdbcTemplate.queryForList(SQL_SELECT_ALL_FROM_GUESTS);
             for (Map<String, Object> row : rows) {
-                Guest guest = new Guest((String) row.get("name"), (Integer) row.get("tableNumber"),
-                        (Integer) row.get("accompanyingGuests"));
+                Guest guest = new Guest((String) row.get("name"), (Integer) row.get("table_number"),
+                        (Integer) row.get("total_guests"));
                 guestList.add(guest);
             }
             return guestList;
@@ -132,5 +135,25 @@ public class JpaGuestRepository {
      */
     public int deleteGuest(Guest guest) {
         return jdbcTemplate.update(SQL_DELETE_GUEST, guest.getName());
+    }
+
+    /**
+     * This method go to the DB and return arrived guests list from DB.
+     * @return arrived guests list from DB. If there is nothing in DB, this method returns an empty array list.
+     */
+    public List<Guest> getArrivedGuestList(){
+        List<Guest> guestList = new ArrayList<>();
+        try {
+            List<Map<String, Object>> rows = jdbcTemplate.queryForList(SQL_SELECT_ALL_FROM_ARRIVED_GUESTS);
+            for (Map<String, Object> row : rows) {
+                Guest guest = new Guest((String) row.get("name"), (Integer) row.get("count"),
+                        (Date) row.get("time_arrived"));
+                guestList.add(guest);
+            }
+            return guestList;
+        } catch (EmptyResultDataAccessException e){
+            // return empty array list
+            return guestList;
+        }
     }
 }

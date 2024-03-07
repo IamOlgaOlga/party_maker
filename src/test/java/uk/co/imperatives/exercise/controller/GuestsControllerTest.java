@@ -12,7 +12,10 @@ import uk.co.imperatives.exercise.exception.ExerciseServiceBadRequestException;
 import uk.co.imperatives.exercise.repository.data.Guest;
 import uk.co.imperatives.exercise.service.GuestService;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static org.hamcrest.Matchers.containsString;
@@ -27,7 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Unit tests for PartyMakerController controller.
+ * Unit tests for GuestController controller.
  */
 @WebMvcTest(GuestsController.class)
 public class GuestsControllerTest {
@@ -39,12 +42,12 @@ public class GuestsControllerTest {
     private GuestService guestService;
 
     /**
-     * This test checks the POST method /guest_list/{name} of PartyMakerController controller.
+     * This test checks the POST method /guest_list/{name}
      * In positive case it should return status 200 and response body with a name of guest.
      */
     @Test
     public void givenCorrectPostGuestRequest_Return200AndName() throws Exception {
-        GuestRequest guestRequest = new GuestRequest(null, 1, 2);
+        GuestRequest guestRequest = new GuestRequest(1, 2);
         String guestName = "Jon Snow";
         given(guestService.addGuest(anyString(), anyInt(), anyInt())).willReturn(guestName);
 
@@ -56,12 +59,12 @@ public class GuestsControllerTest {
     }
 
     /**
-     * This test checks the POST method /guest_list/{name} of PartyMakerController controller.
+     * This test checks the POST method /guest_list/{name}
      * In negative case (table number is -1) it should return status 400 and response body with error.
      */
     @Test
     public void givenNegativeTableInPostGuestRequest_Return400AndError() throws Exception {
-        GuestRequest guestRequest = new GuestRequest(null, -1, 2);
+        GuestRequest guestRequest = new GuestRequest(-1, 2);
         String guestName = "Jon Snow";
         given(guestService.addGuest(anyString(), anyInt(), anyInt())).willReturn(guestName);
 
@@ -74,12 +77,12 @@ public class GuestsControllerTest {
     }
 
     /**
-     * This test checks the POST method /guest_list/{name} of PartyMakerController controller.
+     * This test checks the POST method /guest_list/{name}
      * In negative case (accompanying guests number is not given) it should return status 400 and response body with error.
      */
     @Test
-    public void givenNegativeTableInPostGuestRequestNotGiven_Return400AndError() throws Exception {
-        GuestRequest guestRequest = new GuestRequest(null, 2, null);
+    public void givenAccompanyingGuestsInPostGuestRequestNotGiven_Return400AndError() throws Exception {
+        GuestRequest guestRequest = new GuestRequest(2, null);
         String guestName = "Jon Snow";
         given(guestService.addGuest(anyString(), anyInt(), anyInt())).willReturn(guestName);
 
@@ -92,12 +95,12 @@ public class GuestsControllerTest {
     }
 
     /**
-     * This test checks the POST method /guest_list/{name} of PartyMakerController controller.
+     * This test checks the POST method /guest_list/{name}
      * In negative case (table number is -1) it should return status 400 and response body with error.
      */
     @Test
     public void givenNegativeAccompanyingGuestsCountInPostGuestRequest_Return400AndError() throws Exception {
-        GuestRequest guestRequest = new GuestRequest(null, 1,-2);
+        GuestRequest guestRequest = new GuestRequest(1,-2);
         String guestName = "Jon Snow";
         given(guestService.addGuest(anyString(), anyInt(), anyInt())).willReturn(guestName);
 
@@ -110,7 +113,7 @@ public class GuestsControllerTest {
     }
 
     /**
-     * This test checks the GET method /guest_list of PartyMakerController controller.
+     * This test checks the GET method /guest_list
      * In positive case it should return status 200 and response body with a list of guest.
      * Checks that accompanying guest = total guest (from DB) - 1
      */
@@ -141,7 +144,7 @@ public class GuestsControllerTest {
      */
     @Test
     public void givenCorrectPutGuestRequest_Return200AndGuestName() throws Exception {
-        GuestRequest guestRequest = new GuestRequest(null, null, 2);
+        GuestRequest guestRequest = new GuestRequest(null, 2);
         String guestName = "Jon Snow";
         given(guestService.checkInGuest(anyString(), anyInt())).willReturn(guestName);
 
@@ -159,7 +162,7 @@ public class GuestsControllerTest {
      */
     @Test
     public void givenCorrectPutGuestRequest_NotAvailableSpace_ReturnStatus400() throws Exception {
-        GuestRequest guestRequest = new GuestRequest(null, null, 2);
+        GuestRequest guestRequest = new GuestRequest(null, 2);
         String guestName = "Jon Snow";
         given(guestService.checkInGuest(anyString(), anyInt())).willThrow(ExerciseServiceBadRequestException.class);
 
@@ -194,5 +197,34 @@ public class GuestsControllerTest {
 
         mockMvc.perform(delete("/guests/{name}", guestName))
                 .andExpect(status().isBadRequest());
+    }
+
+    /**
+     * This test checks the GET method /guests
+     * In positive case it should return status 200 and response body with a list of guest.
+     * Checks that accompanying guest = total guest (from DB) - 1
+     */
+    @Test
+    public void givenCorrectGetArrivedGuestListRequest_Return200AndGuestList() throws Exception {
+        var date1 = new Date();
+        var guest1 = new Guest("Jon Snow", 2, date1);
+        var date2 = new Date();
+        var guest2 = new Guest("Arya Stark", 2, date2);
+        var date3 = new Date();
+        var guest3 = new Guest("Tyrion Lannister", 3, date3);
+        List<Guest> guestList = new ArrayList<>();
+        guestList.add(guest1);
+        guestList.add(guest2);
+        guestList.add(guest3);
+        given(guestService.getArrivedGuestList()).willReturn(guestList);
+
+        var dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        var resultBodyResponse = "{\"guests\":[" +
+                "{\"name\":\"Jon Snow\",\"accompanying_guests\":1,\"time_arrived\":\"" + dateFormat.format(date1) + "\"}," +
+                "{\"name\":\"Arya Stark\",\"accompanying_guests\":1,\"time_arrived\":\"" + dateFormat.format(date2) + "\"}," +
+                "{\"name\":\"Tyrion Lannister\",\"accompanying_guests\":2,\"time_arrived\":\"" + dateFormat.format(date3) + "\"}]}";
+        mockMvc.perform(get("/guests"))
+                .andExpect(status().isOk())
+                .andExpect(content().json(resultBodyResponse));
     }
 }

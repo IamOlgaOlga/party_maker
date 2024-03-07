@@ -11,6 +11,7 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import uk.co.imperatives.exercise.repository.data.Guest;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -140,13 +141,13 @@ public class JpaGuestRepositoryTest {
         List<Map<String, Object>> rows = new ArrayList<>();
         Map<String, Object> row1 = new HashMap<>();
         row1.put("name", "Jon Snow");
-        row1.put("tableNumber", 1);
-        row1.put("accompanyingGuests", 2);
+        row1.put("table_number", 1);
+        row1.put("total_guests", 2);
         rows.add(row1);
         Map<String, Object> row2 = new HashMap<>();
         row2.put("name", "Arya Stark");
-        row2.put("tableNumber", 2);
-        row2.put("accompanyingGuests", 3);
+        row2.put("table_number", 2);
+        row2.put("total_guests", 3);
         rows.add(row2);
         given(jdbcTemplate.queryForList(anyString())).willReturn(rows);
         List<Guest> guestList =  repository.getGuestList();
@@ -206,7 +207,7 @@ public class JpaGuestRepositoryTest {
      */
     @Test
     public void givenGuest_RemovedFromDB_ReturnOneAffectedRow() {
-        var guest = new Guest("Jon Snow", null, null);
+        var guest = new Guest("Jon Snow");
         given(jdbcTemplate.update(anyString(),anyString())).willReturn(1);
         assertEquals(1, repository.deleteGuest(guest));
         verify(jdbcTemplate, times(1)).update(anyString(), anyString());
@@ -221,9 +222,51 @@ public class JpaGuestRepositoryTest {
      */
     @Test
     public void givenGuest_NotRemovedFromDB_ReturnZeroAffectedRow() {
-        var guest = new Guest("Jon Snow", null, null);
+        var guest = new Guest("Jon Snow");
         given(jdbcTemplate.update(anyString(),anyString())).willReturn(0);
         assertEquals(0, repository.deleteGuest(guest));
         verify(jdbcTemplate, times(1)).update(anyString(), anyString());
+    }
+
+    /**
+     * Test for the getArrivedGuestList() method.
+     * Input: Repository can find 2 guests in DB.
+     * Output: a list with 2 arrived guests.
+     */
+    @Test
+    public void givenNotEmptyArrivedGuestsListInDB_ReturnListOfArrivedGuests() {
+        List<Map<String, Object>> rows = new ArrayList<>();
+        Map<String, Object> row1 = new HashMap<>();
+        row1.put("name", "Jon Snow");
+        row1.put("count", 2);
+        var date1 = new Date();
+        row1.put("time_arrived", date1);
+        rows.add(row1);
+        Map<String, Object> row2 = new HashMap<>();
+        row2.put("name", "Arya Stark");
+        row2.put("count", 3);
+        var date2 = new Date();
+        row2.put("time_arrived", date2);
+        rows.add(row2);
+        given(jdbcTemplate.queryForList(anyString())).willReturn(rows);
+        List<Guest> guestList =  repository.getArrivedGuestList();
+        assertEquals(2, guestList.size());
+        assertTrue(guestList.stream().anyMatch(guest -> "Jon Snow".equals(guest.getName())
+                && 2 == guest.getTotalGuests() && date1.equals(guest.getTimeArrived())));
+        assertTrue(guestList.stream().anyMatch(guest -> "Arya Stark".equals(guest.getName())
+                && 3 == guest.getTotalGuests() && date2.equals(guest.getTimeArrived())));
+        verify(jdbcTemplate, times(1)).queryForList(anyString());
+    }
+
+    /**
+     * Test for the getArrivedGuestList() method.
+     * Input: Repository can't find anything in DB.
+     * Output: an empty list.
+     */
+    @Test
+    public void givenEmptyArrivedGuestsListInDB_ReturnEmptyList() {
+        given(jdbcTemplate.queryForList(anyString())).willThrow(new EmptyResultDataAccessException(1));
+        assertTrue(repository.getArrivedGuestList().isEmpty());
+        verify(jdbcTemplate, times(1)).queryForList(anyString());
     }
 }

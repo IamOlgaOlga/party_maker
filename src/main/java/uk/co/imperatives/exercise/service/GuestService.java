@@ -62,7 +62,7 @@ public class GuestService {
      * @return a guests list.
      */
     public List<Guest> getGuestList() {
-        log.debug("Call DB to get guest list");
+        log.debug("Call DB to get guests list");
         return guestRepository.getGuestList();
     }
 
@@ -101,7 +101,7 @@ public class GuestService {
      * @return guest's name in case successful removing from DB, else throw an exception.
      */
     public String delete(String name) {
-        var guest = new Guest(name, null, null);
+        var guest = new Guest(name);
         log.debug(String.format("Start removing process for the guest with name = %s", name));
         if (!guestRepository.arrived(guest)) {
             var errorMessage = String.format("Guest with name %s did not arrive to the party", guest.getName());
@@ -115,5 +115,15 @@ public class GuestService {
             throw new ExerciseServiceException(errorMessage);
         }
         return name;
+    }
+
+    /**
+     * Method provides a guests list who arrived to the party.
+     *
+     * @return an arrived guests list.
+     */
+    public List<Guest> getArrivedGuestList() {
+        log.debug("Call DB to get arrived guests list");
+        return guestRepository.getArrivedGuestList();
     }
 }

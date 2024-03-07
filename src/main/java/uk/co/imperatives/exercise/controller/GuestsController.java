@@ -37,9 +37,12 @@ public class GuestsController {
      * @return response with guest's name
      */
     @PostMapping("/guest_list/{name}")
-    public @ResponseBody GuestResponse addGuest(@PathVariable(name = "name") String name, @RequestBody @Valid GuestRequest guestRequest) {
+    public @ResponseBody GuestResponse addGuest(@PathVariable(name = "name") String name,
+                                                @RequestBody @Valid GuestRequest guestRequest) {
         log.debug("Receive a new POST request to add a new guest.");
-        return new GuestResponse(guestService.addGuest(name, guestRequest.getTable(), guestRequest.getAccompanyingGuests()));
+        return new GuestResponse(guestService.addGuest(name, guestRequest.getTable(),
+                guestRequest.getAccompanyingGuests())
+        );
     }
 
     /**
@@ -51,7 +54,8 @@ public class GuestsController {
         log.debug("Receive a new GET request to provide guest list.");
         List<GuestRequest> guestList = new ArrayList<>();
         guestService.getGuestList().forEach(guest -> guestList.add(new GuestRequest(guest.getName(),
-                guest.getTableNumber(), guest.getTotalGuests() - 1)));
+                guest.getTableNumber(), guest.getTotalGuests() - 1))
+        );
         return new GuestListResponse(guestList);
     }
 
@@ -65,7 +69,8 @@ public class GuestsController {
      * @return response with guest's name
      */
     @PutMapping("/guests/{name}")
-    public @ResponseBody GuestResponse arrivedGuest(@PathVariable(name = "name") String name, @RequestBody @Valid GuestRequest guestRequest) {
+    public @ResponseBody GuestResponse arrivedGuest(@PathVariable(name = "name") String name,
+                                                    @RequestBody @Valid GuestRequest guestRequest) {
         log.debug("Receive a new PUT request to check in an arrived guest.");
         return new GuestResponse(guestService.checkInGuest(name, guestRequest.getAccompanyingGuests()));
     }
@@ -79,5 +84,15 @@ public class GuestsController {
     public @ResponseBody GuestResponse deleteGuest(@PathVariable(name = "name") String name) {
         log.debug("Receive a new DELETE request to remove guest who leaves the party.");
         return new GuestResponse(guestService.delete(name));
+    }
+
+    @GetMapping("/guests")
+    public @ResponseBody GuestListResponse getArrivedGuestsList() {
+        log.debug("Receive a new GET request for arrived guests list.");
+        List<GuestRequest> guestList = new ArrayList<>();
+        guestService.getArrivedGuestList().forEach(guest -> guestList.add(new GuestRequest(guest.getName(),
+                guest.getTotalGuests() - 1, guest.getTimeArrived()))
+        );
+        return new GuestListResponse(guestList);
     }
 }
