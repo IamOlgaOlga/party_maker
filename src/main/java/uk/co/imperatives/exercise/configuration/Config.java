@@ -41,6 +41,11 @@ public class Config {
         return new JdbcTemplate(dataSource());
     }
 
+    @Bean
+    public NamedParameterJdbcTemplate namedParameterJdbcTemplate() {
+        return new NamedParameterJdbcTemplate(dataSource());
+    }
+
     @Primary
     @Bean
     public DataSource dataSource() {

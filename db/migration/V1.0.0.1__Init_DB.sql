@@ -20,7 +20,8 @@ ALTER TABLE IF EXISTS guests
 CREATE TABLE IF NOT EXISTS arrived_guests
 (
     name  varchar(255) REFERENCES guests (name),
-    count integer NOT NULL default 1
+    count integer NOT NULL default 1,
+    time_arrived TIMESTAMP NOT NULL default NOW()
 );
 
 ALTER TABLE IF EXISTS arrived_guests
@@ -30,7 +31,5 @@ ALTER TABLE IF EXISTS arrived_guests
 INSERT INTO tables(id, capacity)
 VALUES (1, 5),
        (2, 10),
-       (3, 12),
-       (4, 10),
-       (5, 5)
+       (3, 12)
 ON CONFLICT DO NOTHING;

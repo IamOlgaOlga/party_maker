@@ -43,12 +43,13 @@ public class GuestsController {
         log.debug("Receive a new GET request to provide guest list.");
         List<GuestRequest> guestList = new ArrayList<>();
         guestService.getGuestList().forEach(guest -> guestList.add(new GuestRequest(guest.getName(),
-                guest.getTableNumber(), guest.getTotalGuests())));
+                guest.getTableNumber(), guest.getTotalGuests() - 1)));
         return new GuestListResponse(guestList);
     }
 
     @PutMapping("/guests/{name}")
     public @ResponseBody GuestResponse arrivedGuest(@PathVariable(name = "name") String name, @RequestBody @Valid GuestRequest guestRequest) {
-        return new GuestResponse("");
+        log.debug("Receive a new PUT request to check in an arrived guest.");
+        return new GuestResponse(guestService.checkInGuest(name, guestRequest.getAccompanyingGuests()));
     }
 }

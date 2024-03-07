@@ -31,6 +31,8 @@ public class GuestService {
     public String addGuest(String name, int tableNumber, int accompanyingGuests) {
         // We always store a total number of guests
         var guest = new Guest(name, tableNumber, accompanyingGuests + 1);
+        log.debug(String.format("Create a new guest entity for DB: name = %s, table ID = %d, total guests = %d",
+                guest.getName(), guest.getTableNumber(), guest.getTotalGuests()));
         // Check if the guest already exists
         if (guestRepository.exists(guest)) {
             var errorMessage = String.format("Guest with name %s already exists", guest.getName());
@@ -50,6 +52,7 @@ public class GuestService {
             log.error(errorMessage);
             throw new ExerciseServiceBadRequestException(errorMessage);
         }
+        log.debug(String.format("Add a new guest (%s, %d, %d) to guest list.", name, tableNumber, accompanyingGuests));
         return name;
     }
 
@@ -72,6 +75,23 @@ public class GuestService {
      * @return main guest's name or throw an axception.
      */
     public String checkInGuest(String name, int accompanyingGuests) {
-        return "";
+        // We always store a total number of guests
+        var guest = new Guest(name, null, accompanyingGuests + 1);
+        log.debug(String.format("A new guest arrived. Create an entity for DB: name = %s, total guests = %d",
+                guest.getName(), guest.getTotalGuests()));
+        // Check if the guest booked a table
+        if (!guestRepository.exists(guest)) {
+            var errorMessage = String.format("Guest with name %s did not book a table", guest.getName());
+            log.error(errorMessage);
+            throw new ExerciseServiceBadRequestException(errorMessage);
+        }
+        var rowsAffected = guestRepository.updateArrivedGuest(guest);
+        if (rowsAffected == 0) {
+            var errorMessage = String.format("Booked table does not have available space for %d people (main guest name is %s)",
+                    guest.getTotalGuests(), name);
+            log.error(errorMessage);
+            throw new ExerciseServiceBadRequestException(errorMessage);
+        }
+        return name;
     }
 }

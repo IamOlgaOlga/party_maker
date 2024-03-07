@@ -3,6 +3,8 @@ package uk.co.imperatives.exercise.repository;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import uk.co.imperatives.exercise.repository.data.Guest;
 
@@ -20,24 +22,41 @@ public class JpaGuestRepository {
 
     private final String SQL_INSERT_GUEST = """
                     WITH taken_places AS
-                    	(SELECT SUM(total_guests) AS people, table_number 
+                    	(SELECT SUM(total_guests)::int AS people, table_number 
                     	    FROM guests 
                     	    GROUP BY table_number)
                     INSERT INTO guests (name, table_number, total_guests)
-                    SELECT ?, ?, ?
-                    WHERE ? <= (SELECT (capacity - COALESCE(people, 0)) 
-                                    FROM tables JOIN taken_places 
+                    SELECT :name, :tableId, :guests
+                    WHERE :guests <= (SELECT (capacity - COALESCE(people, 0)) 
+                                    FROM tables LEFT JOIN taken_places 
                                     ON table_number = id 
-                                    WHERE id = ?);
+                                    WHERE id = :tableId);
             """;
-
-    private final String SQL_GET_GUEST_NAME = "SELECT name FROM guests WHERE name = ?;";
 
     private final String SQL_EXISTS_GUEST_NAME = "SELECT EXISTS (SELECT 1 FROM guests WHERE name=?);";
 
     private final String SQL_SELECT_ALL_FROM_GUESTS = "SELECT * FROM guests;";
 
+    private final String SQL_INSERT_ARRIVAL_GUEST = """
+            WITH 
+                taken_places AS
+                    (SELECT SUM(count)::int AS people, table_number
+                    	    FROM arrived_guests a RIGHT JOIN guests g ON a.name = g.name
+                    	    GROUP BY table_number),
+                guest_table_info AS
+                    (SELECT name, table_number, capacity
+                    	    FROM guests JOIN tables ON table_number=id)
+            INSERT INTO arrived_guests (name, count)
+                SELECT :name, :guests
+                WHERE :guests <= (SELECT (capacity - COALESCE(people, 0)) 
+                                    FROM guest_table_info g LEFT JOIN taken_places t
+                                    ON g.table_number = t.table_number
+                                    WHERE name = :name);
+            """;
+
     private JdbcTemplate jdbcTemplate;
+
+    private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     /**
      * Insert a new guest to DB table and return its name.
@@ -45,8 +64,12 @@ public class JpaGuestRepository {
      * @return number of inserted rows
      */
     public int saveGuest(Guest guest) {
-        return jdbcTemplate.update(SQL_INSERT_GUEST,
-                guest.getName(), guest.getTableNumber(), guest.getTotalGuests(), guest.getTotalGuests(), guest.getTableNumber());
+        return namedParameterJdbcTemplate.update(SQL_INSERT_GUEST,
+                new MapSqlParameterSource()
+                        .addValue("name", guest.getName())
+                        .addValue("tableId", guest.getTableNumber())
+                        .addValue("guests", guest.getTotalGuests())
+        );
     }
 
     /**
@@ -57,15 +80,6 @@ public class JpaGuestRepository {
     public boolean exists(Guest guest) {
         return Optional.ofNullable(jdbcTemplate.queryForObject(SQL_EXISTS_GUEST_NAME, Boolean.class, guest.getName()))
                 .orElse(false);
-    }
-
-    /**
-     * Return guest's name from DB or null result if it doesn't exist.
-     * @param guest information about guest.
-     * @return guest's name from DB or null result if it doesn't exist.
-     */
-    public String getGuestName(Guest guest) {
-        return jdbcTemplate.queryForObject(SQL_GET_GUEST_NAME, String.class, guest.getName());
     }
 
     /**
@@ -95,6 +109,10 @@ public class JpaGuestRepository {
      * @return update rows. 1 in case success update else 0.
      */
     public int updateArrivedGuest(Guest guest) {
-        return 1;
+        return namedParameterJdbcTemplate.update(SQL_INSERT_ARRIVAL_GUEST,
+                new MapSqlParameterSource()
+                        .addValue("name", guest.getName())
+                        .addValue("guests", guest.getTotalGuests())
+        );
     }
 }

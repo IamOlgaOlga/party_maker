@@ -6,6 +6,8 @@ import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import uk.co.imperatives.exercise.repository.data.Guest;
 
 import java.util.ArrayList;
@@ -13,10 +15,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -28,6 +31,9 @@ public class JpaGuestRepositoryTest {
 
     @Mock
     private JdbcTemplate jdbcTemplate;
+
+    @Mock
+    private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @InjectMocks
     private JpaGuestRepository repository;
@@ -62,6 +68,34 @@ public class JpaGuestRepositoryTest {
         given(jdbcTemplate.queryForObject(anyString(), eq(Boolean.class), eq(guestName))).willReturn(null);
         assertFalse(repository.exists(new Guest(guestName, tableId, totalGuests)));
         verify(jdbcTemplate, times(1)).queryForObject(anyString(), eq(Boolean.class), eq(guestName));
+    }
+
+    /**
+     * Test for the saveGuest() method
+     * Input: guest Jon Snow, table ID = 1, total guest = 2.
+     * JDBC template returns 1 updated row.
+     * Output: returns 1.
+     */
+    @Test
+    public void givenGuestInfo_AvailableTableSeats_ReturnOneUpdatedRow() {
+        var guest = new Guest("Jon Snow", 1, 2);
+        given(namedParameterJdbcTemplate.update(anyString(), any(SqlParameterSource.class))).willReturn(1);
+        assertEquals(1, repository.saveGuest(guest));
+        verify(namedParameterJdbcTemplate, times(1)).update(anyString(), any(SqlParameterSource.class));
+    }
+
+    /**
+     * Test for the saveGuest() method
+     * Input: guest Jon Snow, table ID = 1, total guest = 2.
+     * JDBC template returns 0 updated row.
+     * Output: returns 0.
+     */
+    @Test
+    public void givenGuestInfo_AvailableTableSeats_ReturnZeroUpdatedRow() {
+        var guest = new Guest("Jon Snow", 1, 2);
+        given(namedParameterJdbcTemplate.update(anyString(), any(SqlParameterSource.class))).willReturn(0);
+        assertEquals(0, repository.saveGuest(guest));
+        verify(namedParameterJdbcTemplate, times(1)).update(anyString(), any(SqlParameterSource.class));
     }
 
     /**
@@ -102,5 +136,33 @@ public class JpaGuestRepositoryTest {
         given(jdbcTemplate.queryForList(anyString())).willThrow(new EmptyResultDataAccessException(1));
         assertTrue(repository.getGuestList().isEmpty());
         verify(jdbcTemplate, times(1)).queryForList(anyString());
+    }
+
+    /**
+     * Test for updateArrivedGuest() method.
+     * Input: guest Jon Snow, table ID = null, total guest = 2.
+     * JDBC template returns 1 updated row.
+     * Output: returns 1.
+     */
+    @Test
+    public void givenGuestArrived_SuccessUpdateInfo_ReturnOneUpdatedRow() {
+        var guest = new Guest("Jon Snow", null, 2);
+        given(namedParameterJdbcTemplate.update(anyString(), any(SqlParameterSource.class))).willReturn(1);
+        assertEquals(1, repository.updateArrivedGuest(guest));
+        verify(namedParameterJdbcTemplate, times(1)).update(anyString(), any(SqlParameterSource.class));
+    }
+
+    /**
+     * Test for updateArrivedGuest() method.
+     * Input: guest Jon Snow, table ID = null, total guest = 2.
+     * JDBC template returns 0 updated row.
+     * Output: returns 0.
+     */
+    @Test
+    public void givenGuestArrived_SuccessUpdateInfo_ReturnZeroUpdatedRow() {
+        var guest = new Guest("Jon Snow", null, 2);
+        given(namedParameterJdbcTemplate.update(anyString(), any(SqlParameterSource.class))).willReturn(0);
+        assertEquals(0, repository.updateArrivedGuest(guest));
+        verify(namedParameterJdbcTemplate, times(1)).update(anyString(), any(SqlParameterSource.class));
     }
 }

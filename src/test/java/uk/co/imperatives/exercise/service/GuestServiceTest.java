@@ -5,7 +5,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import uk.co.imperatives.exercise.exception.ExerciseServiceBadRequestException;
-import uk.co.imperatives.exercise.exception.ExerciseServiceException;
 import uk.co.imperatives.exercise.repository.JpaGuestRepository;
 import uk.co.imperatives.exercise.repository.JpaTableRepository;
 import uk.co.imperatives.exercise.repository.data.Guest;
@@ -166,20 +165,20 @@ public class GuestServiceTest {
      * Test for method checkInGuest()
      * Input: guest name "Jon Snow" and accompanying guest = 2.
      * //
-     * Guest repository returns guest name while checks that the guest booked a table.
+     * Guest repository returns true while checks that the guest booked a table and exists in DB.
      * Guest repository returns 1 updated row while checks availability of the table's space and
      * change information about arrived guest.
      * Guest repository returns guest name the second time if everything is OK.
      * Output: service returns guest's name.
      */
     @Test
-    public void givenArrivedGuest_AvailableTableSpace_ReturnGuestName() {
+    public void givenArrivedGuest_TableHasSpace_ReturnGuestName() {
         String guestName = "Guest Name";
         int accompanyingGuests = 1;
-        given(guestRepository.getGuestName(any(Guest.class))).willReturn(guestName).willReturn(guestName);
+        given(guestRepository.exists(any(Guest.class))).willReturn(true);
         given(guestRepository.updateArrivedGuest(any(Guest.class))).willReturn(1);
         assertThat(guestService.checkInGuest(guestName, accompanyingGuests), equalTo(guestName));
-        verify(guestRepository, times(2)).getGuestName(any(Guest.class));
+        verify(guestRepository, times(1)).exists(any(Guest.class));
         verify(guestRepository, times(1)).updateArrivedGuest(any(Guest.class));
     }
 
@@ -187,7 +186,7 @@ public class GuestServiceTest {
      * Test for method checkInGuest()
      * Input: guest name "Jon Snow" and accompanying guest = 2.
      * //
-     * Guest repository doesn't return guest name while checks that the guest booked a table.
+     * Guest repository returns false while checks that the guest booked a table and exists in DB.
      * Service throws a correct exception for this case.
      * Output: an ExerciseServiceBadRequestException exception must be thrown.
      */
@@ -195,11 +194,11 @@ public class GuestServiceTest {
     public void givenArrivedGuest_GuestDidNotBookTable_ThrowException() {
         String guestName = "Guest Name";
         int accompanyingGuests = 1;
-        given(guestRepository.getGuestName(any(Guest.class))).willReturn(null);
+        given(guestRepository.exists(any(Guest.class))).willReturn(false);
         Exception exception = assertThrows(ExerciseServiceBadRequestException.class,
                 () -> guestService.checkInGuest(guestName, accompanyingGuests));
         assertEquals(String.format("Guest with name %s did not book a table", guestName), exception.getMessage());
-        verify(guestRepository, times(1)).getGuestName(any(Guest.class));
+        verify(guestRepository, times(1)).exists(any(Guest.class));
         verify(guestRepository, times(0)).updateArrivedGuest(any(Guest.class));
     }
 
@@ -207,7 +206,7 @@ public class GuestServiceTest {
      * Test for method checkInGuest()
      * Input: guest name "Jon Snow" and accompanying guest = 2.
      * //
-     * Guest repository returns guest name while checks that the guest booked a table.
+     * Guest repository returns true while checks that the guest booked a table and exists in DB.
      * Guest repository returns 0 updated row while checks availability of the table's space and
      * change information about arrived guest.
      * Service throws a correct exception for this case.
@@ -217,38 +216,15 @@ public class GuestServiceTest {
     public void givenArrivedGuest_NotAvailableTableSpace_ThrowException() {
         String guestName = "Guest Name";
         int accompanyingGuests = 1;
-        given(guestRepository.getGuestName(any(Guest.class))).willReturn(guestName);
+        given(guestRepository.exists(any(Guest.class))).willReturn(true);
         given(guestRepository.updateArrivedGuest(any(Guest.class))).willReturn(0);
         Exception exception = assertThrows(ExerciseServiceBadRequestException.class,
                 () -> guestService.checkInGuest(guestName, accompanyingGuests));
         assertEquals(
-                String.format("Booked table does not have available space for %d guests (main guest name is %s)",
-                        accompanyingGuests, guestName),
+                String.format("Booked table does not have available space for %d people (main guest name is %s)",
+                        accompanyingGuests + 1, guestName),
                 exception.getMessage());
-        verify(guestRepository, times(2)).getGuestName(any(Guest.class));
-        verify(guestRepository, times(1)).updateArrivedGuest(any(Guest.class));
-    }
-
-    /**
-     * Test for method checkInGuest()
-     * Input: guest name "Jon Snow" and accompanying guest = 2.
-     * //
-     * Guest repository returns guest name while checks that the guest booked a table.
-     * Guest repository returns 1 updated row while checks availability of the table's space and
-     * change information about arrived guest.
-     * Guest repository doesn't return guest name the second time.
-     * Output: an ExerciseServiceException exception must be thrown.
-     */
-    @Test
-    public void givenArrivedGuest_SomeServiceException_ThrowException() {
-        String guestName = "Guest Name";
-        int accompanyingGuests = 1;
-        given(guestRepository.getGuestName(any(Guest.class))).willReturn(guestName).willReturn(null);
-        given(guestRepository.updateArrivedGuest(any(Guest.class))).willReturn(1);
-        Exception exception = assertThrows(ExerciseServiceException.class,
-                () -> guestService.checkInGuest(guestName, accompanyingGuests));
-        assertEquals("An error was occur while updating an information about arrived guest", exception.getMessage());
-        verify(guestRepository, times(2)).getGuestName(any(Guest.class));
+        verify(guestRepository, times(1)).exists(any(Guest.class));
         verify(guestRepository, times(1)).updateArrivedGuest(any(Guest.class));
     }
 }

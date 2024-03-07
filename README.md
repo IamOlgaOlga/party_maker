@@ -145,8 +145,38 @@ spring.datasource.username=exercise
 spring.datasource.password=password
 ```
 - Flyway is used for DB migrations. All migration scripts are in `/db/migration` path, also `FlywayConfig` was added.
+But you still need to create DB `exercisedb` with username `exercise` and password `password` (or change these values in `application.properties`)
 - Postman collection and environment files are in `/postman` directory.
 - Tables management: there were three values added to DB to the table named tables (via flyway migration script): 
 `(table id = 1, capacity = 5)`, `(table id = 2, capacity = 10)`, `(table id = 3, capacity = 15)`.
-I also added a `TableController` with a few example method to work with tables. 
+I also added a `TableController` with a few example method to work with tables.
+
+To create a new table use API:
+```
+POST /table
+{
+    "table_id": 1,
+    "capacity": 5
+}
+```
+
+To receive all tables:
+```
+GET /tables_list
+```
+
+To change table's capacity:
+
+```
+PUT /table/{id}
+{
+    "capacity": 20
+}
+```
+
 For the future there could be more methods added.
+- From the task's context I decide that a guest's name -- is a primary key. 
+There is no chance that we can book 2 guests with the same name. 
+I decided that in a moment only one guest with some name could try to book a table (like in a real life), 
+so there is no data race possible for this case.
+- For the method get arrived guests (GET /guests) I provide a list of arrived guests who didn't leave the party (currently on the party).
