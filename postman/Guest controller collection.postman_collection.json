@@ -1,0 +1,139 @@
+{
+	"info": {
+		"_postman_id": "16c4112e-72ce-4f22-bee0-1b42037413fa",
+		"name": "Guest controller collection",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "26017287"
+	},
+	"item": [
+		{
+			"name": "add new guest to the guest list",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"table\": 2,\n    \"accompanying_guests\": 2\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}:{{port}}/guest_list/Jon",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"guest_list",
+						"Jon"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get guest list",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}:{{port}}/guest_list",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"guest_list"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "put arrived guest",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"accompanying_guests\": 1\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}:{{port}}/guests/Jon",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"guests",
+						"Jon"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Remove guest from party",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{host}}:{{port}}/guests/Jon",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"guests",
+						"Jon"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get arrived guests list",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}:{{port}}/guests",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"guests"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get empty seats",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}:{{port}}/seats_empty",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"seats_empty"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

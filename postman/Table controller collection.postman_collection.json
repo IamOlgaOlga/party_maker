@@ -1,0 +1,83 @@
+{
+	"info": {
+		"_postman_id": "19c91c76-4db1-4c43-b948-d50ef7393eba",
+		"name": "Table controller collection",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "26017287"
+	},
+	"item": [
+		{
+			"name": "add a new table",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"table_id\": 1,\n    \"capacity\": 5\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}:{{port}}/table",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"table"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "change table's capacity",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"capacity\": 20\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}:{{port}}/table/{id}",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"table",
+						"{id}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get tables list",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}:{{port}}/tables_list",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"tables_list"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
