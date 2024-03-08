@@ -13,6 +13,7 @@ import lombok.Getter;
  */
 @Getter
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({"table_id", "capacity"})
 public class TableRequest {
 

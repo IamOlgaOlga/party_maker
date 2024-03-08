@@ -327,4 +327,16 @@ public class GuestServiceTest {
         );
         verify(guestRepository, times(1)).getArrivedGuestList();
     }
+
+    /**
+     * Test for the getAvailableSeats() method
+     * Table repository returns count of available seats.
+     * Output: returns correct count of available seats.
+     */
+    @Test
+    public void givenRequestForAvailableSeats_ReturnSeatsCount() {
+        given(tableRepository.getAvailableSeats()).willReturn(2);
+        assertEquals(2,guestService.getAvailableSeats());
+        verify(tableRepository, times(1)).getAvailableSeats();
+    }
 }

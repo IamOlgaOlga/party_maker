@@ -12,7 +12,6 @@ import uk.co.imperatives.exercise.exception.ExerciseServiceBadRequestException;
 import uk.co.imperatives.exercise.repository.data.Guest;
 import uk.co.imperatives.exercise.service.GuestService;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -46,7 +45,7 @@ public class GuestsControllerTest {
      * In positive case it should return status 200 and response body with a name of guest.
      */
     @Test
-    public void givenCorrectPostGuestRequest_Return200AndName() throws Exception {
+    public void givenCorrectPostGuestRequest_Return201AndName() throws Exception {
         GuestRequest guestRequest = new GuestRequest(1, 2);
         String guestName = "Jon Snow";
         given(guestService.addGuest(anyString(), anyInt(), anyInt())).willReturn(guestName);
@@ -54,7 +53,7 @@ public class GuestsControllerTest {
         mockMvc.perform(post("/guest_list/{name}", guestName)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(guestRequest)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(content().string(containsString(guestName)));
     }
 
@@ -109,7 +108,7 @@ public class GuestsControllerTest {
                         .content(new ObjectMapper().writeValueAsString(guestRequest)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string(containsString("Request validation error")))
-                .andExpect(content().string(containsString("Accompanying Guests must be more than 0")));
+                .andExpect(content().string(containsString("Accompanying Guests must be positive or more than 0")));
     }
 
     /**
@@ -226,5 +225,17 @@ public class GuestsControllerTest {
         mockMvc.perform(get("/guests"))
                 .andExpect(status().isOk())
                 .andExpect(content().json(resultBodyResponse));
+    }
+
+    /**
+     * This test checks GET /seats_empty method.
+     * It must return available seats or 0, status 200.
+     */
+    @Test
+    public void givenAvailableSeatsCount_ReturnStatus200AndSeatsCount() throws Exception {
+        given(guestService.getAvailableSeats()).willReturn(1);
+        mockMvc.perform(get("/seats_empty"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("\"seats_empty\":1")));
     }
 }

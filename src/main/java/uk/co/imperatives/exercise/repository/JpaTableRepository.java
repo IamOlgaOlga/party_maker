@@ -23,13 +23,18 @@ public class JpaTableRepository {
 
     private final static String SQL_GET_TABLE_LIST = "SELECT * FROM tables;";
 
-    private final static String SQL_GET_TABLE_ID = "SELECT id FROM tables WHERE id = ?;";
-
     private final static String SQL_EXISTS_TABLE = "SELECT EXISTS (SELECT 1 FROM tables WHERE id=?);";
 
     private final static String SQL_INSERT_TABLE = "INSERT INTO tables (id, capacity) VALUES (?, ?);";
 
     private final static String SQL_UPDATE_TABLE = "UPDATE tables SET capacity=? WHERE id=?;";
+
+    private final static String SQL_SELECT_AVAILABLE_SEATS = """
+        WITH
+            t AS (SELECT SUM(capacity) capacity FROM tables),
+            a AS (SELECT COALESCE(SUM(count), 0) taken_seats FROM arrived_guests)
+        SELECT t.capacity - a.taken_seats FROM a, t;
+        """;
 
     private JdbcTemplate jdbcTemplate;
 
@@ -76,5 +81,14 @@ public class JpaTableRepository {
      */
     public int updateTable(Table table) {
         return jdbcTemplate.update(SQL_UPDATE_TABLE, table.getCapacity(), table.getId());
+    }
+
+    /**
+     * Get a count of available seats from DB
+     * @return count of available seats
+     */
+    public int getAvailableSeats() throws ExerciseServiceException {
+        return Optional.ofNullable(jdbcTemplate.queryForObject(SQL_SELECT_AVAILABLE_SEATS, Integer.class))
+                .orElseThrow(() -> new ExerciseServiceException("Something goes wrong while calculating available seats"));
     }
 }

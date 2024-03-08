@@ -3,6 +3,7 @@ package uk.co.imperatives.exercise.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -17,6 +18,8 @@ import java.util.Date;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonPropertyOrder({"name", "table", "accompanying_guests", "time_arrived"})
 public class GuestRequest {
 
     private String name;
@@ -25,7 +28,7 @@ public class GuestRequest {
     private Integer table;
 
     @NotNull(message = "Accompanying guests field must not be null")
-    @Min(value = 0, message = "Accompanying Guests must be more than 0")
+    @Min(value = 0, message = "Accompanying Guests must be positive or more than 0")
     @JsonProperty("accompanying_guests")
     private Integer accompanyingGuests;
 

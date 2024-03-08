@@ -36,17 +36,17 @@ public class TableControllerTest {
 
     /**
      * This test checks the POST method /table of TableController controller.
-     * In positive case it should return status 200 and response body with a table ID.
+     * In positive case it should return status 201 and response body with a table ID.
      */
     @Test
-    public void givenCorrectPostTableRequest_Return200AndTableID() throws Exception {
+    public void givenCorrectPostTableRequest_Return201AndTableID() throws Exception {
         TableRequest tableRequest = new TableRequest(1, 2);
         given(tableService.addTable(1, 2)).willReturn(1);
 
         mockMvc.perform(post("/table")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(tableRequest)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(content().string(containsString("{\"table_id\":1}")));
     }
 

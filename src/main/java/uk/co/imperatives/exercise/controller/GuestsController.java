@@ -3,6 +3,8 @@ package uk.co.imperatives.exercise.controller;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import uk.co.imperatives.exercise.dto.GuestListResponse;
 import uk.co.imperatives.exercise.dto.GuestRequest;
 import uk.co.imperatives.exercise.dto.GuestResponse;
+import uk.co.imperatives.exercise.dto.SeatsResponse;
 import uk.co.imperatives.exercise.service.GuestService;
 
 import java.util.ArrayList;
@@ -34,15 +37,16 @@ public class GuestsController {
      * If there is insufficient space at the specified table, then an error should be thrown.
      * @param name name of a new guest
      * @param guestRequest information about guest: table's number and count of accompanying guests
-     * @return response with guest's name
+     * @return response with created guest's name
      */
     @PostMapping("/guest_list/{name}")
-    public @ResponseBody GuestResponse addGuest(@PathVariable(name = "name") String name,
-                                                @RequestBody @Valid GuestRequest guestRequest) {
+    public ResponseEntity<GuestResponse> addGuest(@PathVariable(name = "name") String name,
+                                                 @RequestBody @Valid GuestRequest guestRequest) {
         log.debug("Receive a new POST request to add a new guest.");
-        return new GuestResponse(guestService.addGuest(name, guestRequest.getTable(),
-                guestRequest.getAccompanyingGuests())
-        );
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(new GuestResponse(guestService.addGuest(name, guestRequest.getTable(),
+                guestRequest.getAccompanyingGuests())));
     }
 
     /**
@@ -94,5 +98,15 @@ public class GuestsController {
                 guest.getTotalGuests() - 1, guest.getTimeArrived()))
         );
         return new GuestListResponse(guestList);
+    }
+
+    /**
+     * This method returns a count of available seats
+     * @return response with available seats
+     */
+    @GetMapping("/seats_empty")
+    public @ResponseBody SeatsResponse getEmptySeats() {
+        log.debug("Receive a new GET request for empty seats.");
+        return new SeatsResponse(guestService.getAvailableSeats());
     }
 }

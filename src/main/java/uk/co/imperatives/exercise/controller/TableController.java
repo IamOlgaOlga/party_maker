@@ -3,6 +3,8 @@ package uk.co.imperatives.exercise.controller;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import uk.co.imperatives.exercise.dto.GuestResponse;
 import uk.co.imperatives.exercise.dto.TableListResponse;
 import uk.co.imperatives.exercise.dto.TableRequest;
 import uk.co.imperatives.exercise.dto.TableResponse;
@@ -29,13 +32,15 @@ public class TableController {
      * This method аdd a new table to the table list.
      * If the table with the same ID already exists, an exception will be thrown.
      * @param tableRequest information about table: table's number and count of accompanying guests
-     * @return table ID
+     * @return created table's ID
      */
     @PostMapping("/table")
-    public @ResponseBody TableResponse addTable(@RequestBody @Valid TableRequest tableRequest) {
+    public ResponseEntity<TableResponse> addTable(@RequestBody @Valid TableRequest tableRequest) {
         log.debug("Receive a new POST request to add a new table (table ID = " + tableRequest.getTableId()
                 + ", capacity = " + tableRequest.getCapacity() + ")");
-        return new TableResponse(tableService.addTable(tableRequest.getTableId(), tableRequest.getCapacity()));
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(new TableResponse(tableService.addTable(tableRequest.getTableId(), tableRequest.getCapacity())));
     }
 
     /**

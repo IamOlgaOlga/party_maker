@@ -126,4 +126,13 @@ public class GuestService {
         log.debug("Call DB to get arrived guests list");
         return guestRepository.getArrivedGuestList();
     }
+
+    /**
+     * Method returns a count of available seats
+     * @return count of available seats
+     */
+    public int getAvailableSeats() {
+        log.debug("Call DB to get available seats");
+        return tableRepository.getAvailableSeats();
+    }
 }

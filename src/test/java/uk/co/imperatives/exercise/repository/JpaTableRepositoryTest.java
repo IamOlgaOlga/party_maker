@@ -6,6 +6,7 @@ import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import uk.co.imperatives.exercise.exception.ExerciseServiceException;
 import uk.co.imperatives.exercise.repository.data.Table;
 
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -70,7 +72,7 @@ public class JpaTableRepositoryTest {
      * Output: true
      */
     @Test
-    public void givenTableIdForExistedTable_ReturnTableId() {
+    public void givenTableIdForExistedTable_ReturnTrue() {
         int tableId = 1;
         given(jdbcTemplate.queryForObject(anyString(), eq(Boolean.class), eq(tableId))).willReturn(true);
         assertTrue(repository.exists(tableId));
@@ -83,7 +85,7 @@ public class JpaTableRepositoryTest {
      * Output: false
      */
     @Test
-    public void givenTableIdForNotExistedTable_ReturnNull() {
+    public void givenTableIdForNotExistedTable_ReturnFalse() {
         int tableId = 1;
         given(jdbcTemplate.queryForObject(anyString(), eq(Boolean.class), eq(tableId))).willReturn(null);
         assertFalse(repository.exists(tableId));
@@ -96,7 +98,7 @@ public class JpaTableRepositoryTest {
      * Output: 1 updated row
      */
     @Test
-    public void givenCorrectTableCapacityUpdate_NothingIsThrown(){
+    public void givenCorrectTableCapacityUpdate_ReturnOneUpdatedRow(){
         Table table = new Table(1, 2);
         given(jdbcTemplate.update(anyString(),eq(table.getCapacity()), eq(table.getId()))).willReturn(1);
         assertEquals(1, repository.updateTable(table));
@@ -109,10 +111,35 @@ public class JpaTableRepositoryTest {
      * Output: 0 updated rows
      */
     @Test
-    public void givenIncorrectTableCapacityUpdate_ExceptionIsThrown(){
+    public void givenIncorrectTableCapacityUpdate_ReturnZeroUpdatedRows(){
         Table table = new Table(1, 2);
         given(jdbcTemplate.update(anyString(),eq(table.getCapacity()), eq(table.getId()))).willReturn(0);
         assertEquals(0, repository.updateTable(table));
         verify(jdbcTemplate, times(1)).update(anyString(),eq(table.getCapacity()), eq(table.getId()));
+    }
+
+    /**
+     * Test for the getAvailableSeats() method
+     * JDBC template returns available seats count from DB
+     * Output: seats count.
+     */
+    @Test
+    public void givenAvailableSeats_ReturnSeatsCount(){
+        given(jdbcTemplate.queryForObject(anyString(), eq(Integer.class))).willReturn(5);
+        assertEquals(5, repository.getAvailableSeats());
+        verify(jdbcTemplate, times(1)).queryForObject(anyString(), eq(Integer.class));
+    }
+
+    /**
+     * Test for the getAvailableSeats() method
+     * JDBC template returns null from DB
+     * Output: ExerciseServiceException must be thrown.
+     */
+    @Test
+    public void givenJdbcTemplateReturnsNullForAvailableSeats_TrowException(){
+        given(jdbcTemplate.queryForObject(anyString(), eq(Integer.class))).willReturn(null);
+        Exception exception = assertThrows(ExerciseServiceException.class, () ->  repository.getAvailableSeats());
+        assertEquals("Something goes wrong while calculating available seats", exception.getMessage());
+        verify(jdbcTemplate, times(1)).queryForObject(anyString(), eq(Integer.class));
     }
 }
