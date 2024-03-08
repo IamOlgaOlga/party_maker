@@ -147,6 +147,7 @@ spring.datasource.password=password
 - Flyway is used for DB migrations. All migration scripts are in `/db/migration` path, also `FlywayConfig` was added.
 But you still need to create DB `exercisedb` with username `exercise` and password `password` (or change these values in `application.properties`)
 - Postman collection (for `Guest Controller` and `Table Controller`) and environment files are in `/postman` directory.
+- To see API documentation go to URL: http://localhost:8080/swagger-ui/index.html
 - Tables management: there were three values added to DB to the table named tables (via flyway migration script): 
 `(table id = 1, capacity = 5)`, `(table id = 2, capacity = 10)`, `(table id = 3, capacity = 15)`.
 I also added a `TableController` with a few example method to work with tables.
