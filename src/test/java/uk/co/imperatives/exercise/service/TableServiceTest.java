@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
+import uk.co.imperatives.exercise.exception.ExerciseAlreadyExistsException;
 import uk.co.imperatives.exercise.exception.ExerciseServiceBadRequestException;
 import uk.co.imperatives.exercise.exception.ExerciseServiceException;
 import uk.co.imperatives.exercise.repository.JpaTableRepository;
@@ -64,7 +65,7 @@ public class TableServiceTest {
         var capacity = 2;
         given(tableRepository.exists(eq(tableId))).willReturn(true);
         //
-        Exception exception = assertThrows(ExerciseServiceBadRequestException.class,
+        Exception exception = assertThrows(ExerciseAlreadyExistsException.class,
                 () -> tableService.addTable(tableId, capacity));
         assertEquals(String.format("Table with ID = %d already exists", tableId), exception.getMessage());
         verify(tableRepository, times(1)).exists(anyInt());

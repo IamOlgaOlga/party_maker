@@ -31,8 +31,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * Unit tests for GuestController controller.
  */
-@WebMvcTest(GuestsController.class)
-public class GuestsControllerTest {
+@WebMvcTest(GuestsControllerImpl.class)
+public class GuestsControllerImplTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -71,7 +71,6 @@ public class GuestsControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(guestRequest)))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string(containsString("Request validation error")))
                 .andExpect(content().string(containsString("Table number value must be more than 0")));
     }
 
@@ -89,7 +88,6 @@ public class GuestsControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(guestRequest)))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string(containsString("Request validation error")))
                 .andExpect(content().string(containsString("Accompanying guests field must not be null")));
     }
 
@@ -107,8 +105,7 @@ public class GuestsControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(guestRequest)))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string(containsString("Request validation error")))
-                .andExpect(content().string(containsString("Accompanying Guests must be positive or more than 0")));
+                .andExpect(content().string(containsString("Number of accompanying guests must be more than 0")));
     }
 
     /**

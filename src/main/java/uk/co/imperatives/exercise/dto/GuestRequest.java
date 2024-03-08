@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -28,7 +29,7 @@ public class GuestRequest {
     private Integer table;
 
     @NotNull(message = "Accompanying guests field must not be null")
-    @Min(value = 0, message = "Accompanying Guests must be positive or more than 0")
+    @Min(value = 0, message = "Number of accompanying guests must be more than 0")
     @JsonProperty("accompanying_guests")
     private Integer accompanyingGuests;
 

@@ -4,6 +4,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
+import uk.co.imperatives.exercise.exception.ExerciseAlreadyExistsException;
+import uk.co.imperatives.exercise.exception.ExerciseNotFoundException;
 import uk.co.imperatives.exercise.exception.ExerciseServiceBadRequestException;
 import uk.co.imperatives.exercise.exception.ExerciseServiceException;
 import uk.co.imperatives.exercise.repository.JpaGuestRepository;
@@ -106,7 +108,7 @@ public class GuestServiceTest {
         int accompanyingGuests = 1;
         given(guestRepository.exists(any(Guest.class))).willReturn(true);
         //
-        Exception exception = assertThrows(ExerciseServiceBadRequestException.class,
+        Exception exception = assertThrows(ExerciseAlreadyExistsException.class,
                 () -> guestService.addGuest(guestName, tableId, accompanyingGuests)
         );
         assertEquals(String.format("Guest with name %s already exists", guestName), exception.getMessage());
@@ -202,7 +204,7 @@ public class GuestServiceTest {
         var guestName = "Jon Snow";
         int accompanyingGuests = 1;
         given(guestRepository.exists(any(Guest.class))).willReturn(false);
-        Exception exception = assertThrows(ExerciseServiceBadRequestException.class,
+        Exception exception = assertThrows(ExerciseNotFoundException.class,
                 () -> guestService.checkInGuest(guestName, accompanyingGuests)
         );
         assertEquals(String.format("Guest with name %s did not book a table", guestName), exception.getMessage());
@@ -267,7 +269,7 @@ public class GuestServiceTest {
     public void givenNotArrivedGuest_ThrowException() {
         var guestName = "Jon Snow";
         given(guestRepository.arrived(any(Guest.class))).willReturn(false);
-        Exception exception = assertThrows(ExerciseServiceBadRequestException.class,
+        Exception exception = assertThrows(ExerciseNotFoundException.class,
                 () -> guestService.delete(guestName)
         );
         assertEquals(String.format("Guest with name %s did not arrive to the party", guestName), exception.getMessage());

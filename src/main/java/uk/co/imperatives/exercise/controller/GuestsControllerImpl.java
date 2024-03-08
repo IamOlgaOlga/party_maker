@@ -28,7 +28,7 @@ import java.util.List;
 @Slf4j
 @AllArgsConstructor
 @RestController
-public class GuestsController {
+public class GuestsControllerImpl implements GuestController {
 
     private GuestService guestService;
 
@@ -90,6 +90,10 @@ public class GuestsController {
         return new GuestResponse(guestService.delete(name));
     }
 
+    /**
+     * This method provides a list of arrived guests.
+     * @return a list of arrived guests
+     */
     @GetMapping("/guests")
     public @ResponseBody GuestListResponse getArrivedGuestsList() {
         log.debug("Receive a new GET request for arrived guests list.");

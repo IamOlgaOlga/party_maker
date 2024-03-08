@@ -1,68 +1,150 @@
 package uk.co.imperatives.exercise.controller;
 
-import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import uk.co.imperatives.exercise.dto.GuestListResponse;
+import uk.co.imperatives.exercise.dto.GuestRequest;
 import uk.co.imperatives.exercise.dto.GuestResponse;
 import uk.co.imperatives.exercise.dto.TableListResponse;
 import uk.co.imperatives.exercise.dto.TableRequest;
 import uk.co.imperatives.exercise.dto.TableResponse;
-import uk.co.imperatives.exercise.service.TableService;
 
-import java.util.ArrayList;
-import java.util.List;
+@Tag(name = "Tables Controller", description = "Controller to manage tables")
+public interface TableController {
 
-@Slf4j
-@AllArgsConstructor
-@RestController
-public class TableController {
+    @Operation(summary = "Add a new table",
+            description = "Add a new table for the party")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "Created a new table",
+                    content = {@Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = GuestResponse.class),
+                            examples = @ExampleObject(
+                                    name = "Status 201 will be returned if a new table was created",
+                                    summary = "New table was created",
+                                    value = "{\"table_id\":1}"
+                            )
+                    )}
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Unexpected service error",
+                    content = {@Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    name = "Status 500 will be returned in case any error while saving a new table",
+                                    summary = "Unexpected error",
+                                    value = "{\"timestamp\": \"2024-01-01 05:20:22\", \"status\": 500, " +
+                                            "\"error_message\":\"An error occurs while saving a new table\"}"
+                            )
+                    )}
+            ),
+            @ApiResponse(responseCode = "409", description = "Table already exists",
+                    content = {@Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    name = "Status 409 will be returned if the table already exists",
+                                    summary = "Table already exists",
+                                    value = "{\"timestamp\": \"2024-01-01 05:20:22\", \"status\": 409, " +
+                                            "\"error_message\":\"Table with ID = 1 already exists\"}"
+                            )
+                    )}
+            )
+    })
+    ResponseEntity<TableResponse> addTable(
+            @RequestBody(description = "Table information", required = true, content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = GuestRequest.class),
+                    examples = @ExampleObject(
+                            name = "A new table with capacity = 10",
+                            summary = "Table with capacity 10",
+                            value = "{\"table_id\":1, \"capacity\": 10}"
+                    ))
+            )
+            TableRequest tableRequest);
 
-    private TableService tableService;
+    @Operation(summary = "Get the table list", description = "Provides a list with information about all tables")
+    @ApiResponse(
+            responseCode = "200",
+            description = "A tables list",
+            content = {@Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = GuestListResponse.class),
+                    examples = @ExampleObject(
+                            name = "Status 200 and a list with information about tables will be returned",
+                            summary = "tables list",
+                            value = " {\"tables_list\":[" +
+                                    "{\"table_id\":1, \"capacity\":5}, " +
+                                    "{\"table_id\":2, \"capacity\":10}, " +
+                                    "{\"table_id\":3, \"capacity\":20}]}"
+                    )
+            )}
+    )
+    TableListResponse getTablesList();
 
-    /**
-     * This method аdd a new table to the table list.
-     * If the table with the same ID already exists, an exception will be thrown.
-     * @param tableRequest information about table: table's number and count of accompanying guests
-     * @return created table's ID
-     */
-    @PostMapping("/table")
-    public ResponseEntity<TableResponse> addTable(@RequestBody @Valid TableRequest tableRequest) {
-        log.debug("Receive a new POST request to add a new table (table ID = " + tableRequest.getTableId()
-                + ", capacity = " + tableRequest.getCapacity() + ")");
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(new TableResponse(tableService.addTable(tableRequest.getTableId(), tableRequest.getCapacity())));
-    }
-
-    /**
-     * This method provides the tables list.
-     * @return tables list
-     */
-    @GetMapping("/tables_list")
-    public @ResponseBody TableListResponse getTablesList() {
-        log.debug("Receive a new GET request to provide a table list");
-        List<TableRequest> tablesList = new ArrayList<>();
-        tableService.getTablesList()
-                .forEach(table -> tablesList.add(new TableRequest(table.getId(), table.getCapacity())));
-        return new TableListResponse(tablesList);
-    }
-
-    /**
-     * This method provides the tables list.
-     * @return tables list
-     */
-    @PutMapping("/table/{id}")
-    public @ResponseBody TableResponse getTablesList(@PathVariable(name = "id") Integer id, @RequestBody @Valid TableRequest tableRequest) {
-        log.debug("Receive a new PUT request to update table capacity");
-        return new TableResponse(tableService.updateTable(id, tableRequest.getCapacity()));
-    }
+    @Operation(summary = "Update table",
+            description = "Update table capacity")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Update table",
+                    content = {@Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = GuestResponse.class),
+                            examples = @ExampleObject(
+                                    name = "Status 200 will be returned if table was updated",
+                                    summary = "Table was updated",
+                                    value = "{\"table_id\":1}"
+                            )
+                    )}
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Unexpected service error",
+                    content = {@Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    name = "Status 500 will be returned in case any error while saving a new table",
+                                    summary = "Unexpected error",
+                                    value = "{\"timestamp\": \"2024-01-01 05:20:22\", \"status\": 500, " +
+                                            "\"error_message\":\"Error in DB while table capacity update\"}"
+                            )
+                    )}
+            ),
+            @ApiResponse(responseCode = "404", description = "Table not found",
+                    content = {@Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    name = "Status 404 will be returned if requested table was not found",
+                                    summary = "Table not found",
+                                    value = "{\"timestamp\": \"2024-01-01 05:20:22\", \"status\": 404, " +
+                                            "\"error_message\":\"Table with ID = 1 does not exist\"}"
+                            )
+                    )}
+            )
+    })
+    TableResponse updateTable(
+            @Parameter(description = "Table ID", required = true, example = "1")
+            Integer id,
+            @RequestBody(description = "Table information", required = true, content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = GuestRequest.class),
+                    examples = @ExampleObject(
+                            name = "A new table with capacity = 10",
+                            summary = "Table with capacity 10",
+                            value = "{\"capacity\": 10}"
+                    ))
+            )
+            TableRequest tableRequest);
 }

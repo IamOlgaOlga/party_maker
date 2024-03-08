@@ -87,7 +87,7 @@ public class JpaTableRepository {
      * Get a count of available seats from DB
      * @return count of available seats
      */
-    public int getAvailableSeats() throws ExerciseServiceException {
+    public int getAvailableSeats() {
         return Optional.ofNullable(jdbcTemplate.queryForObject(SQL_SELECT_AVAILABLE_SEATS, Integer.class))
                 .orElseThrow(() -> new ExerciseServiceException("Something goes wrong while calculating available seats"));
     }

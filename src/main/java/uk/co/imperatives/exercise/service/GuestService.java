@@ -3,6 +3,8 @@ package uk.co.imperatives.exercise.service;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import uk.co.imperatives.exercise.exception.ExerciseAlreadyExistsException;
+import uk.co.imperatives.exercise.exception.ExerciseNotFoundException;
 import uk.co.imperatives.exercise.exception.ExerciseServiceBadRequestException;
 import uk.co.imperatives.exercise.exception.ExerciseServiceException;
 import uk.co.imperatives.exercise.repository.JpaGuestRepository;
@@ -37,7 +39,7 @@ public class GuestService {
         if (guestRepository.exists(guest)) {
             var errorMessage = String.format("Guest with name %s already exists", guest.getName());
             log.error(errorMessage);
-            throw new ExerciseServiceBadRequestException(errorMessage);
+            throw new ExerciseAlreadyExistsException(errorMessage);
         }
         // Check if the table exists
         if (!tableRepository.exists(tableNumber)) {
@@ -83,7 +85,7 @@ public class GuestService {
         if (!guestRepository.exists(guest)) {
             var errorMessage = String.format("Guest with name %s did not book a table", guest.getName());
             log.error(errorMessage);
-            throw new ExerciseServiceBadRequestException(errorMessage);
+            throw new ExerciseNotFoundException(errorMessage);
         }
         var rowsAffected = guestRepository.updateArrivedGuest(guest);
         if (rowsAffected == 0) {
@@ -106,7 +108,7 @@ public class GuestService {
         if (!guestRepository.arrived(guest)) {
             var errorMessage = String.format("Guest with name %s did not arrive to the party", guest.getName());
             log.error(errorMessage);
-            throw new ExerciseServiceBadRequestException(errorMessage);
+            throw new ExerciseNotFoundException(errorMessage);
         }
         var rowsAffected = guestRepository.deleteGuest(guest);
         if (rowsAffected == 0) {

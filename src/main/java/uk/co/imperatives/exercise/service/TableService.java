@@ -3,6 +3,8 @@ package uk.co.imperatives.exercise.service;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import uk.co.imperatives.exercise.exception.ExerciseAlreadyExistsException;
+import uk.co.imperatives.exercise.exception.ExerciseNotFoundException;
 import uk.co.imperatives.exercise.exception.ExerciseServiceBadRequestException;
 import uk.co.imperatives.exercise.exception.ExerciseServiceException;
 import uk.co.imperatives.exercise.repository.JpaTableRepository;
@@ -31,7 +33,7 @@ public class TableService {
         if (tableRepository.exists(id)) {
             var errorMessage = String.format("Table with ID = %d already exists", id);
             log.error(errorMessage);
-            throw new ExerciseServiceBadRequestException(errorMessage);
+            throw new ExerciseAlreadyExistsException(errorMessage);
         }
         var insertedRows = tableRepository.saveTable(new Table(id, capacity));
         if (insertedRows == 0) {
@@ -57,7 +59,7 @@ public class TableService {
         if (!tableRepository.exists(id)) {
             var errorMessage = String.format("Table with ID = %d does not exist", id);
             log.error(errorMessage);
-            throw new ExerciseServiceBadRequestException(errorMessage);
+            throw new ExerciseNotFoundException(errorMessage);
         }
         var updatedRows = tableRepository.updateTable(new Table(id, capacity));
         if (1 != updatedRows) {

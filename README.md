@@ -179,4 +179,10 @@ For the future there could be more methods added.
 There is no chance that we can book 2 guests with the same name. 
 I decided that in a moment only one guest with some name could try to book a table (like in a real life), 
 so there is no data race possible for this case.
-- For the method get arrived guests (GET /guests) I provide a list of arrived guests who didn't leave the party (currently on the party).
+- For the method get arrived guests (GET /guests) I provide a list of arrived guests who didn't leave the party 
+(currently on the party).
+- I created an interface only for controller classes. Because this is a small application 
+and I don't need to scale up it in the future. Interfaces for controllers are useful because of using Swagger for API documentation.
+It's easier to read code and fix something if we separate spring boot and swagger annotations.
+- For DTO classes I didn't create one class for one kind of request/response. I use the same class for multiple requests/responses.
+But if it's more clear for developers (or in case of huge project) I can create unique class for each request/response.

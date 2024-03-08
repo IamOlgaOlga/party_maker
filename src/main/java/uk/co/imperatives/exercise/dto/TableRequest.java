@@ -18,9 +18,10 @@ import lombok.Getter;
 public class TableRequest {
 
     @JsonProperty("table_id")
+    @Min(value = 0, message = "Table ID must be more than 0")
     private Integer tableId;
 
-    @Min(value = 0, message = "Capacity value must be positive or equals 0")
+    @Min(value = 0, message = "Capacity value must be more than 0")
     @NotNull
     private int capacity;
 }

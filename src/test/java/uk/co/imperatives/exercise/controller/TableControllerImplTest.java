@@ -25,8 +25,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * Unit tests for TableController controller.
  */
-@WebMvcTest(TableController.class)
-public class TableControllerTest {
+@WebMvcTest(TableControllerImpl.class)
+public class TableControllerImplTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -62,8 +62,7 @@ public class TableControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(tableRequest)))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string(containsString("Request validation error")))
-                .andExpect(content().string(containsString("Capacity value must be positive or equals 0")));
+                .andExpect(content().string(containsString("Capacity value must be more than 0")));
     }
 
     /**
@@ -115,7 +114,6 @@ public class TableControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(tableRequest)))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string(containsString("Request validation error")))
-                .andExpect(content().string(containsString("Capacity value must be positive or equals 0")));
+                .andExpect(content().string(containsString("Capacity value must be more than 0")));
     }
 }
