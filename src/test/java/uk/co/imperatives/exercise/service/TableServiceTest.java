@@ -4,8 +4,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
+import uk.co.imperatives.exercise.configuration.TestConfig;
 import uk.co.imperatives.exercise.exception.ExerciseAlreadyExistsException;
-import uk.co.imperatives.exercise.exception.ExerciseServiceBadRequestException;
 import uk.co.imperatives.exercise.exception.ExerciseServiceException;
 import uk.co.imperatives.exercise.repository.JpaTableRepository;
 import uk.co.imperatives.exercise.repository.data.Table;
@@ -24,7 +24,7 @@ import static org.mockito.Mockito.verify;
 /**
  * Unit tests for TableService
  */
-@SpringBootTest
+@SpringBootTest(classes = TestConfig.class)
 public class TableServiceTest {
 
     @Mock

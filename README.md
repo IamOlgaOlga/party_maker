@@ -137,53 +137,76 @@ scope of this assignment.
 
 # Development notes
 
-- PostgreSQL is used for this application, please change DB url,username and password in `application.properties` file:
-```
-## PostgreSQL
-spring.datasource.url=jdbc:postgresql://localhost:5432/exercisedb
-spring.datasource.username=exercise
-spring.datasource.password=password
-```
-- Flyway is used for DB migrations. All migration scripts are in `/db/migration` path, also `FlywayConfig` was added.
-But you still need to create DB `exercisedb` with username `exercise` and password `password` (or change these values in `application.properties`)
-- Postman collection (for `Guest Controller` and `Table Controller`) and environment files are in `/postman` directory.
-- To see API documentation go to URL: http://localhost:8080/swagger-ui/index.html
-- Tables management: there were three values added to DB to the table named tables (via flyway migration script): 
-`(table id = 1, capacity = 5)`, `(table id = 2, capacity = 10)`, `(table id = 3, capacity = 15)`.
-I also added a `TableController` with a few example method to work with tables.
+## How to build the application
 
-To create a new table use API:
-```
-POST /table
-{
-    "table_id": 1,
-    "capacity": 5
-}
-```
+Application is build with Maven, use `mvn clean install -Dspring.profiles.active=test` command to build it.
 
-To receive all tables:
-```
-GET /tables_list
-```
+`test` profile is used in order to skip running Flyway database schema migrations which are not needed
+for unit tests which are run during application build.
 
-To change table's capacity:
+## How to run the application
 
-```
-PUT /table/{id}
-{
-    "capacity": 20
-}
-```
+The application runs in a Docker container.
 
-For the future there could be more methods added.
-- From the task's context I decide that a guest's name -- is a primary key. 
+There is a `Dockerfile` which is used to build an application Docker image and there is a `docker-compose.yml` file
+to run the application and PostgreSQL containers together.
+
+Use `docker-compose up --build` command to start the environment (database and the application itself).
+
+Be sure to build the Spring Boot app (`mvn clean install -Dspring.profiles.active=test`) before the first run of docker-compose,
+or if you made any changes to the application or its configuration.
+
+In order to run docker-compose successfully you need to have localhost ports 8080 and 5432 available
+for the application and the database accordingly.
+
+To stop the application you can either use `^C` from the same terminal tab you started the app,
+or use `docker-compose down` command.
+
+## Application configuration
+
+By default, the application will run as is without any configuration changes via `docker-compose`.
+
+You can find database configuration values in `application-docker.properties`
+(when run with Docker, `docker` Spring profile is used) file and in `docker-compose.yml`.
+
+If you want to run the application without Docker, change the DB configuration values in `application.properties` file 
+as per your locally running PostgreSQL database which you need to initialize and configure manually.
+
+## Database schema migrations
+
+Flyway is used for DB migrations. All migration scripts are in `/db/migration` directory.
+
+In case of running the application not as a Docker container, you still need to create `exercisedb` database
+with username `exercise` and password `password` (or change these values in `application.properties`).
+
+## Application API usage and documentation
+
+There is a Postman collection (for `Guest Controller` and `Table Controller`) and environment files located in `/postman` directory.
+
+To see API documentation, visit: http://localhost:8080/swagger-ui/index.html
+
+## Misc notes
+
+### Changing tables capacity
+
+Initially, there are three values added to the database `tables` table (via Flyway migration script):
+
+- `(table id = 1, capacity = 5)`
+- `(table id = 2, capacity = 10)`
+- `(table id = 3, capacity = 15)`
+
+I also added a `TableController` with a few example methods to work with tables (see Swagger documentation).
+
+### Other assumptions/thoughts
+
+- From the task's context I decided that a guest's name is a primary key. 
 There is no chance that we can book 2 guests with the same name. 
 I decided that in a moment only one guest with some name could try to book a table (like in a real life), 
 so there is no data race possible for this case.
-- For the method get arrived guests (GET /guests) I provide a list of arrived guests who didn't leave the party 
-(currently on the party).
-- I created an interface only for controller classes. Because this is a small application 
-and I don't need to scale up it in the future. Interfaces for controllers are useful because of using Swagger for API documentation.
-It's easier to read code and fix something if we separate spring boot and swagger annotations.
-- For DTO classes I didn't create one class for one kind of request/response. I use the same class for multiple requests/responses.
-But if it's more clear for developers (or in case of huge project) I can create unique class for each request/response.
+- I created interfaces only for controller classes. Because this is a small application 
+and I don't need to extend functionality or add new implementations in the future. 
+Interfaces for controllers are useful because of using Swagger for API documentation.
+It's easier to read code and fix something if we separate Spring and Swagger annotations.
+- For DTO classes in order to write less code I decided not to create a separate class for each kind of request/response.
+I use the same class for multiple requests/responses.
+But if it's more clear for developers (or in case of a bigger project) I can create separate classes for each request/response.

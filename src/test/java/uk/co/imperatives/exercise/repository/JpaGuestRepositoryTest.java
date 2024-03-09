@@ -8,6 +8,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import uk.co.imperatives.exercise.configuration.TestConfig;
 import uk.co.imperatives.exercise.repository.data.Guest;
 
 import java.util.ArrayList;
@@ -27,7 +28,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-@SpringBootTest
+@SpringBootTest(classes = TestConfig.class)
 public class JpaGuestRepositoryTest {
 
     @Mock

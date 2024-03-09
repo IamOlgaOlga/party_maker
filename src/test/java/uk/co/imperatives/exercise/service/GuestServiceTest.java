@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
+import uk.co.imperatives.exercise.configuration.TestConfig;
 import uk.co.imperatives.exercise.exception.ExerciseAlreadyExistsException;
 import uk.co.imperatives.exercise.exception.ExerciseNotFoundException;
 import uk.co.imperatives.exercise.exception.ExerciseServiceBadRequestException;
@@ -31,7 +32,7 @@ import static org.mockito.Mockito.verify;
 /**
  * Unit tests for GuestService
  */
-@SpringBootTest
+@SpringBootTest(classes = TestConfig.class)
 public class GuestServiceTest {
 
     @Mock
