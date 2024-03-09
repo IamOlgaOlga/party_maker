@@ -35,22 +35,24 @@ public class GuestsControllerImpl implements GuestController {
     /**
      * This method аdd a guest to the guests list.
      * If there is insufficient space at the specified table, then an error should be thrown.
-     * @param name name of a new guest
+     *
+     * @param name         name of a new guest
      * @param guestRequest information about guest: table's number and count of accompanying guests
      * @return response with created guest's name
      */
     @PostMapping("/guest_list/{name}")
     public ResponseEntity<GuestResponse> addGuest(@PathVariable(name = "name") String name,
-                                                 @RequestBody @Valid GuestRequest guestRequest) {
+                                                  @RequestBody @Valid GuestRequest guestRequest) {
         log.debug("Receive a new POST request to add a new guest.");
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(new GuestResponse(guestService.addGuest(name, guestRequest.getTable(),
-                guestRequest.getAccompanyingGuests())));
+                        guestRequest.getAccompanyingGuests())));
     }
 
     /**
      * This method provide a list with information about all guests who booked a table for the party.
+     *
      * @return a guests list with information about each guest: name, booked table, accompanying guests.
      */
     @GetMapping("/guest_list")
@@ -68,7 +70,8 @@ public class GuestsControllerImpl implements GuestController {
      * A guest may arrive with his friends that are not the size indicated at the guest list.
      * If the table is expected to have space for the extras, allow them to come.
      * Otherwise, this method should throw an error.
-     * @param name name of arrived guest
+     *
+     * @param name         name of arrived guest
      * @param guestRequest request with the number of accompanying guests
      * @return response with guest's name
      */
@@ -81,6 +84,7 @@ public class GuestsControllerImpl implements GuestController {
 
     /**
      * This method removes guest who leaves the party
+     *
      * @param name guest's name who leaves the party.
      * @return response with guest's name
      */
@@ -92,6 +96,7 @@ public class GuestsControllerImpl implements GuestController {
 
     /**
      * This method provides a list of arrived guests.
+     *
      * @return a list of arrived guests
      */
     @GetMapping("/guests")
@@ -106,6 +111,7 @@ public class GuestsControllerImpl implements GuestController {
 
     /**
      * This method returns a count of available seats
+     *
      * @return response with available seats
      */
     @GetMapping("/seats_empty")

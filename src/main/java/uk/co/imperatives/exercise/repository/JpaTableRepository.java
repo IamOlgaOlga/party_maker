@@ -6,7 +6,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import uk.co.imperatives.exercise.exception.ExerciseServiceException;
-import uk.co.imperatives.exercise.repository.data.Table;
+import uk.co.imperatives.exercise.repository.entity.Table;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,16 +30,17 @@ public class JpaTableRepository {
     private final static String SQL_UPDATE_TABLE = "UPDATE tables SET capacity=? WHERE id=?;";
 
     private final static String SQL_SELECT_AVAILABLE_SEATS = """
-        WITH
-            t AS (SELECT SUM(capacity) capacity FROM tables),
-            a AS (SELECT COALESCE(SUM(count), 0) taken_seats FROM arrived_guests)
-        SELECT t.capacity - a.taken_seats FROM a, t;
-        """;
+            WITH
+                t AS (SELECT SUM(capacity) capacity FROM tables),
+                a AS (SELECT COALESCE(SUM(count), 0) taken_seats FROM arrived_guests)
+            SELECT t.capacity - a.taken_seats FROM a, t;
+            """;
 
     private JdbcTemplate jdbcTemplate;
 
     /**
      * Makes a call to DB and select all records from tables.
+     *
      * @return a list of all tables from DB
      */
     public List<Table> getTableList() {
@@ -50,7 +51,7 @@ public class JpaTableRepository {
                 tableList.add(new Table((Integer) row.get("id"), (Integer) row.get("capacity")));
             }
             return tableList;
-        } catch (EmptyResultDataAccessException e){
+        } catch (EmptyResultDataAccessException e) {
             // return empty array list
             return tableList;
         }
@@ -58,6 +59,7 @@ public class JpaTableRepository {
 
     /**
      * Saves a new table to DB
+     *
      * @return number of inserted rows
      */
     public int saveTable(Table table) {
@@ -66,6 +68,7 @@ public class JpaTableRepository {
 
     /**
      * Check if table exists in DB.
+     *
      * @param id table ID.
      * @return true if table exists else false.
      */
@@ -76,6 +79,7 @@ public class JpaTableRepository {
 
     /**
      * Updates table's capacity in DB by table ID.
+     *
      * @param table information about table
      * @return number of updated rows
      */
@@ -85,6 +89,7 @@ public class JpaTableRepository {
 
     /**
      * Get a count of available seats from DB
+     *
      * @return count of available seats
      */
     public int getAvailableSeats() {

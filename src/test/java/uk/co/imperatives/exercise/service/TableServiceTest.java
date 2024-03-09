@@ -8,7 +8,7 @@ import uk.co.imperatives.exercise.configuration.TestConfig;
 import uk.co.imperatives.exercise.exception.ExerciseAlreadyExistsException;
 import uk.co.imperatives.exercise.exception.ExerciseServiceException;
 import uk.co.imperatives.exercise.repository.JpaTableRepository;
-import uk.co.imperatives.exercise.repository.data.Table;
+import uk.co.imperatives.exercise.repository.entity.Table;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -41,7 +41,7 @@ public class TableServiceTest {
      * Output: correct table ID.
      */
     @Test
-    public void givenTableInfo_SaveToDbAndReturnName(){
+    public void givenTableInfo_SaveToDbAndReturnName() {
         var tableId = 1;
         var capacity = 2;
         given(tableRepository.exists(eq(tableId))).willReturn(false);
@@ -60,7 +60,7 @@ public class TableServiceTest {
      * Output: an ExerciseServiceBadRequestException exception was thrown.
      */
     @Test
-    public void givenTableInfo_NotUniq_ThrowError(){
+    public void givenTableInfo_NotUniq_ThrowError() {
         var tableId = 1;
         var capacity = 2;
         given(tableRepository.exists(eq(tableId))).willReturn(true);
@@ -81,7 +81,7 @@ public class TableServiceTest {
      * Output: an ExerciseServiceException exception was thrown.
      */
     @Test
-    public void givenTableInfo_NotSaved_ThrowError(){
+    public void givenTableInfo_NotSaved_ThrowError() {
         var tableId = 1;
         var capacity = 2;
         given(tableRepository.exists(eq(tableId))).willReturn(false);

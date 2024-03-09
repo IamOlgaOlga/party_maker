@@ -30,6 +30,7 @@ public class TableControllerImpl implements TableController {
     /**
      * This method аdd a new table to the table list.
      * If the table with the same ID already exists, an exception will be thrown.
+     *
      * @param tableRequest information about table: table's number and count of accompanying guests
      * @return created table's ID
      */
@@ -44,6 +45,7 @@ public class TableControllerImpl implements TableController {
 
     /**
      * This method provides the tables list.
+     *
      * @return tables list
      */
     @GetMapping("/tables_list")
@@ -57,6 +59,7 @@ public class TableControllerImpl implements TableController {
 
     /**
      * This method provides the tables list.
+     *
      * @return tables list
      */
     @PutMapping("/table/{id}")

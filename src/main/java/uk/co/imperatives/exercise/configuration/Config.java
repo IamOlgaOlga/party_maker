@@ -29,7 +29,7 @@ public class Config {
 
     @Bean(initMethod = "migrate")
     public Flyway flyway() {
-        FluentConfiguration fluentConfiguration = Flyway.configure() ;
+        FluentConfiguration fluentConfiguration = Flyway.configure();
         fluentConfiguration.baselineOnMigrate(true);
         fluentConfiguration.dataSource(dataSource());
         fluentConfiguration.locations("filesystem:db/migration");
@@ -37,7 +37,7 @@ public class Config {
     }
 
     @Bean
-    public JdbcTemplate jdbcTemplate(){
+    public JdbcTemplate jdbcTemplate() {
         return new JdbcTemplate(dataSource());
     }
 

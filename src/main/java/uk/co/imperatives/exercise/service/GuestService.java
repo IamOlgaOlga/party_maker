@@ -9,7 +9,7 @@ import uk.co.imperatives.exercise.exception.ExerciseServiceBadRequestException;
 import uk.co.imperatives.exercise.exception.ExerciseServiceException;
 import uk.co.imperatives.exercise.repository.JpaGuestRepository;
 import uk.co.imperatives.exercise.repository.JpaTableRepository;
-import uk.co.imperatives.exercise.repository.data.Guest;
+import uk.co.imperatives.exercise.repository.entity.Guest;
 
 import java.util.List;
 
@@ -87,6 +87,12 @@ public class GuestService {
             log.error(errorMessage);
             throw new ExerciseNotFoundException(errorMessage);
         }
+        // Check if the guest already arrived
+        if (guestRepository.arrived(guest)) {
+            var errorMessage = String.format("Guest with name %s already arrived to the party", guest.getName());
+            log.error(errorMessage);
+            throw new ExerciseAlreadyExistsException(errorMessage);
+        }
         var rowsAffected = guestRepository.updateArrivedGuest(guest);
         if (rowsAffected == 0) {
             var errorMessage = String.format("Booked table does not have available space for %d people (main guest name is %s)",
@@ -99,6 +105,7 @@ public class GuestService {
 
     /**
      * This method removes guest who leaves the party.
+     *
      * @param name guest's name who leaves a party.
      * @return guest's name in case successful removing from DB, else throw an exception.
      */
@@ -131,6 +138,7 @@ public class GuestService {
 
     /**
      * Method returns a count of available seats
+     *
      * @return count of available seats
      */
     public int getAvailableSeats() {

@@ -9,14 +9,13 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import uk.co.imperatives.exercise.configuration.TestConfig;
-import uk.co.imperatives.exercise.repository.data.Guest;
+import uk.co.imperatives.exercise.repository.entity.Guest;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -151,7 +150,7 @@ public class JpaGuestRepositoryTest {
         row2.put("total_guests", 3);
         rows.add(row2);
         given(jdbcTemplate.queryForList(anyString())).willReturn(rows);
-        List<Guest> guestList =  repository.getGuestList();
+        List<Guest> guestList = repository.getGuestList();
         assertEquals(2, guestList.size());
         assertTrue(guestList.stream().anyMatch(guest -> "Jon Snow".equals(guest.getName())
                 && 1 == guest.getTableNumber() && 2 == guest.getTotalGuests()));
@@ -209,7 +208,7 @@ public class JpaGuestRepositoryTest {
     @Test
     public void givenGuest_RemovedFromDB_ReturnOneAffectedRow() {
         var guest = new Guest("Jon Snow");
-        given(jdbcTemplate.update(anyString(),anyString())).willReturn(1);
+        given(jdbcTemplate.update(anyString(), anyString())).willReturn(1);
         assertEquals(1, repository.deleteGuest(guest));
         verify(jdbcTemplate, times(1)).update(anyString(), anyString());
     }
@@ -224,7 +223,7 @@ public class JpaGuestRepositoryTest {
     @Test
     public void givenGuest_NotRemovedFromDB_ReturnZeroAffectedRow() {
         var guest = new Guest("Jon Snow");
-        given(jdbcTemplate.update(anyString(),anyString())).willReturn(0);
+        given(jdbcTemplate.update(anyString(), anyString())).willReturn(0);
         assertEquals(0, repository.deleteGuest(guest));
         verify(jdbcTemplate, times(1)).update(anyString(), anyString());
     }
@@ -250,7 +249,7 @@ public class JpaGuestRepositoryTest {
         row2.put("time_arrived", date2);
         rows.add(row2);
         given(jdbcTemplate.queryForList(anyString())).willReturn(rows);
-        List<Guest> guestList =  repository.getArrivedGuestList();
+        List<Guest> guestList = repository.getArrivedGuestList();
         assertEquals(2, guestList.size());
         assertTrue(guestList.stream().anyMatch(guest -> "Jon Snow".equals(guest.getName())
                 && 2 == guest.getTotalGuests() && date1.equals(guest.getTimeArrived())));

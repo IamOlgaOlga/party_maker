@@ -9,7 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.co.imperatives.exercise.dto.GuestRequest;
 import uk.co.imperatives.exercise.exception.ExerciseServiceBadRequestException;
-import uk.co.imperatives.exercise.repository.data.Guest;
+import uk.co.imperatives.exercise.repository.entity.Guest;
 import uk.co.imperatives.exercise.service.GuestService;
 
 import java.text.SimpleDateFormat;
@@ -97,7 +97,7 @@ public class GuestsControllerImplTest {
      */
     @Test
     public void givenNegativeAccompanyingGuestsCountInPostGuestRequest_Return400AndError() throws Exception {
-        GuestRequest guestRequest = new GuestRequest(1,-2);
+        GuestRequest guestRequest = new GuestRequest(1, -2);
         String guestName = "Jon Snow";
         given(guestService.addGuest(anyString(), anyInt(), anyInt())).willReturn(guestName);
 
@@ -173,7 +173,7 @@ public class GuestsControllerImplTest {
      * In positive case controller must return status 200 and guest's name.
      */
     @Test
-    public void givenExistedGuest_DeleteGuest_ReturnStatus200AndGuestName() throws Exception{
+    public void givenExistedGuest_DeleteGuest_ReturnStatus200AndGuestName() throws Exception {
         String guestName = "Jon Snow";
         given(guestService.delete(anyString())).willReturn(guestName);
 
@@ -187,7 +187,7 @@ public class GuestsControllerImplTest {
      * In negative case (guest doesn't exist) controller must return status 400.
      */
     @Test
-    public void givenNotExistedGuest_ReturnStatus400() throws Exception{
+    public void givenNotExistedGuest_ReturnStatus400() throws Exception {
         String guestName = "Jon Snow";
         given(guestService.delete(anyString())).willThrow(ExerciseServiceBadRequestException.class);
 

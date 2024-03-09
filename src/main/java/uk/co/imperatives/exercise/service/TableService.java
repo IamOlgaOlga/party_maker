@@ -5,10 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import uk.co.imperatives.exercise.exception.ExerciseAlreadyExistsException;
 import uk.co.imperatives.exercise.exception.ExerciseNotFoundException;
-import uk.co.imperatives.exercise.exception.ExerciseServiceBadRequestException;
 import uk.co.imperatives.exercise.exception.ExerciseServiceException;
 import uk.co.imperatives.exercise.repository.JpaTableRepository;
-import uk.co.imperatives.exercise.repository.data.Table;
+import uk.co.imperatives.exercise.repository.entity.Table;
 
 import java.util.List;
 
@@ -25,7 +24,8 @@ public class TableService {
     /**
      * This method аdd a new table to the table list.
      * If the table with the same ID already exists, an exception will be thrown.
-     * @param id table ID
+     *
+     * @param id       table ID
      * @param capacity table capacity
      * @return added table ID
      */
@@ -51,7 +51,8 @@ public class TableService {
 
     /**
      * Update table's capacity by ID.
-     * @param id table's ID
+     *
+     * @param id       table's ID
      * @param capacity new table's capacity
      * @return updated table ID
      */

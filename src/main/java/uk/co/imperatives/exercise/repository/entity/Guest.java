@@ -1,4 +1,4 @@
-package uk.co.imperatives.exercise.repository.data;
+package uk.co.imperatives.exercise.repository.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

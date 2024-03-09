@@ -30,9 +30,9 @@ public interface GuestController {
                             mediaType = MediaType.APPLICATION_JSON_VALUE,
                             schema = @Schema(implementation = GuestResponse.class),
                             examples = @ExampleObject(
-                                name = "Status 201 will be returned if a new guest was created and added to the guests list",
-                                summary = "New guest was created",
-                                value = "{\"name\": \"Jon Snow\"}"
+                                    name = "Status 201 will be returned if a new guest was created and added to the guests list",
+                                    summary = "New guest was created",
+                                    value = "{\"name\": \"Jon Snow\"}"
                             )
                     )}
             ),
@@ -68,9 +68,9 @@ public interface GuestController {
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = GuestRequest.class),
                     examples = @ExampleObject(
-                            name = "Add a new guest with 3 friends to the table 5",
-                            summary = "1+3 guests for table 5",
-                            value = "{\"tableNumber\": 5, \"accompanyingGuests\": 3}"
+                            name = "Add a new guest with 3 friends to the table 1",
+                            summary = "1+3 guests for table 1",
+                            value = "{\"table\": 1, \"accompanying_guests\": 3}"
                     ))
             )
             GuestRequest guestRequest);
@@ -143,7 +143,7 @@ public interface GuestController {
                     examples = @ExampleObject(
                             name = "A new guest with 3 friends arrived",
                             summary = "1+3 guests arrived",
-                            value = "{\"accompanyingGuests\": 3}"
+                            value = "{\"accompanying_guests\": 3}"
                     ))
             )
             GuestRequest guestRequest);

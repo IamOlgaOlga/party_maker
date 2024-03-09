@@ -210,3 +210,5 @@ It's easier to read code and fix something if we separate Spring and Swagger ann
 - For DTO classes in order to write less code I decided not to create a separate class for each kind of request/response.
 I use the same class for multiple requests/responses.
 But if it's more clear for developers (or in case of a bigger project) I can create separate classes for each request/response.
+This decision is imperfect and was made to save some time. It can be further improved by providing each request with 
+its own class and specific validation rules on each field which will result in more detailed error messages.

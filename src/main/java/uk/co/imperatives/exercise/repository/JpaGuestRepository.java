@@ -6,7 +6,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
-import uk.co.imperatives.exercise.repository.data.Guest;
+import uk.co.imperatives.exercise.repository.entity.Guest;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -67,6 +67,7 @@ public class JpaGuestRepository {
 
     /**
      * Insert a new guest to DB table and return its name.
+     *
      * @param guest information about guest (name, table number, accompanying guests)
      * @return number of inserted rows
      */
@@ -81,6 +82,7 @@ public class JpaGuestRepository {
 
     /**
      * Check if guest exists in DB.
+     *
      * @param guest information about guest.
      * @return true if guest exists else false.
      */
@@ -96,6 +98,7 @@ public class JpaGuestRepository {
 
     /**
      * This method go to the DB and return guests list from DB.
+     *
      * @return guests list from DB. If there is nothing in DB, this method returns an empty array list.
      */
     public List<Guest> getGuestList() {
@@ -108,7 +111,7 @@ public class JpaGuestRepository {
                 guestList.add(guest);
             }
             return guestList;
-        } catch (EmptyResultDataAccessException e){
+        } catch (EmptyResultDataAccessException e) {
             // return empty array list
             return guestList;
         }
@@ -117,6 +120,7 @@ public class JpaGuestRepository {
     /**
      * This method checks available space at the booked table for arrived guest and accompanying friends
      * and update an information about arrived guest.
+     *
      * @param guest an arrived guest
      * @return update rows. 1 in case success update else 0.
      */
@@ -130,6 +134,7 @@ public class JpaGuestRepository {
 
     /**
      * This method removes the guest from DB.
+     *
      * @param guest guest to delete
      * @return affected rows
      */
@@ -139,9 +144,10 @@ public class JpaGuestRepository {
 
     /**
      * This method go to the DB and return arrived guests list from DB.
+     *
      * @return arrived guests list from DB. If there is nothing in DB, this method returns an empty array list.
      */
-    public List<Guest> getArrivedGuestList(){
+    public List<Guest> getArrivedGuestList() {
         List<Guest> guestList = new ArrayList<>();
         try {
             List<Map<String, Object>> rows = jdbcTemplate.queryForList(SQL_SELECT_ALL_FROM_ARRIVED_GUESTS);
@@ -151,7 +157,7 @@ public class JpaGuestRepository {
                 guestList.add(guest);
             }
             return guestList;
-        } catch (EmptyResultDataAccessException e){
+        } catch (EmptyResultDataAccessException e) {
             // return empty array list
             return guestList;
         }

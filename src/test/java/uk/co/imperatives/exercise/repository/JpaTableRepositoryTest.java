@@ -8,7 +8,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import uk.co.imperatives.exercise.configuration.TestConfig;
 import uk.co.imperatives.exercise.exception.ExerciseServiceException;
-import uk.co.imperatives.exercise.repository.data.Table;
+import uk.co.imperatives.exercise.repository.entity.Table;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,7 +50,7 @@ public class JpaTableRepositoryTest {
         row2.put("capacity", 3);
         rows.add(row2);
         given(jdbcTemplate.queryForList(anyString())).willReturn(rows);
-        List<Table> tableList =  repository.getTableList();
+        List<Table> tableList = repository.getTableList();
         assertEquals(2, tableList.size());
         assertTrue(tableList.stream().anyMatch(table -> 1 == table.getId() && 2 == table.getCapacity()));
         assertTrue(tableList.stream().anyMatch(table -> 2 == table.getId() && 3 == table.getCapacity()));
@@ -99,11 +99,11 @@ public class JpaTableRepositoryTest {
      * Output: 1 updated row
      */
     @Test
-    public void givenCorrectTableCapacityUpdate_ReturnOneUpdatedRow(){
+    public void givenCorrectTableCapacityUpdate_ReturnOneUpdatedRow() {
         Table table = new Table(1, 2);
-        given(jdbcTemplate.update(anyString(),eq(table.getCapacity()), eq(table.getId()))).willReturn(1);
+        given(jdbcTemplate.update(anyString(), eq(table.getCapacity()), eq(table.getId()))).willReturn(1);
         assertEquals(1, repository.updateTable(table));
-        verify(jdbcTemplate, times(1)).update(anyString(),eq(table.getCapacity()), eq(table.getId()));
+        verify(jdbcTemplate, times(1)).update(anyString(), eq(table.getCapacity()), eq(table.getId()));
     }
 
     /**
@@ -112,11 +112,11 @@ public class JpaTableRepositoryTest {
      * Output: 0 updated rows
      */
     @Test
-    public void givenIncorrectTableCapacityUpdate_ReturnZeroUpdatedRows(){
+    public void givenIncorrectTableCapacityUpdate_ReturnZeroUpdatedRows() {
         Table table = new Table(1, 2);
-        given(jdbcTemplate.update(anyString(),eq(table.getCapacity()), eq(table.getId()))).willReturn(0);
+        given(jdbcTemplate.update(anyString(), eq(table.getCapacity()), eq(table.getId()))).willReturn(0);
         assertEquals(0, repository.updateTable(table));
-        verify(jdbcTemplate, times(1)).update(anyString(),eq(table.getCapacity()), eq(table.getId()));
+        verify(jdbcTemplate, times(1)).update(anyString(), eq(table.getCapacity()), eq(table.getId()));
     }
 
     /**
@@ -125,7 +125,7 @@ public class JpaTableRepositoryTest {
      * Output: seats count.
      */
     @Test
-    public void givenAvailableSeats_ReturnSeatsCount(){
+    public void givenAvailableSeats_ReturnSeatsCount() {
         given(jdbcTemplate.queryForObject(anyString(), eq(Integer.class))).willReturn(5);
         assertEquals(5, repository.getAvailableSeats());
         verify(jdbcTemplate, times(1)).queryForObject(anyString(), eq(Integer.class));
@@ -137,9 +137,9 @@ public class JpaTableRepositoryTest {
      * Output: ExerciseServiceException must be thrown.
      */
     @Test
-    public void givenJdbcTemplateReturnsNullForAvailableSeats_TrowException(){
+    public void givenJdbcTemplateReturnsNullForAvailableSeats_TrowException() {
         given(jdbcTemplate.queryForObject(anyString(), eq(Integer.class))).willReturn(null);
-        Exception exception = assertThrows(ExerciseServiceException.class, () ->  repository.getAvailableSeats());
+        Exception exception = assertThrows(ExerciseServiceException.class, () -> repository.getAvailableSeats());
         assertEquals("Something goes wrong while calculating available seats", exception.getMessage());
         verify(jdbcTemplate, times(1)).queryForObject(anyString(), eq(Integer.class));
     }

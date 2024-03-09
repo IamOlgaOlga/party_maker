@@ -11,7 +11,7 @@ import uk.co.imperatives.exercise.exception.ExerciseServiceBadRequestException;
 import uk.co.imperatives.exercise.exception.ExerciseServiceException;
 import uk.co.imperatives.exercise.repository.JpaGuestRepository;
 import uk.co.imperatives.exercise.repository.JpaTableRepository;
-import uk.co.imperatives.exercise.repository.data.Guest;
+import uk.co.imperatives.exercise.repository.entity.Guest;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -54,7 +54,7 @@ public class GuestServiceTest {
      * Output: correct guest name without exceptions.
      */
     @Test
-    public void givenGuestInfo_AvailableSeats_SaveToDbAndReturnName(){
+    public void givenGuestInfo_AvailableSeats_SaveToDbAndReturnName() {
         var guestName = "Jon Snow";
         int tableId = 1;
         int accompanyingGuests = 1;
@@ -78,7 +78,7 @@ public class GuestServiceTest {
      * Output: an ExerciseServiceBadRequestException exception must be thrown.
      */
     @Test
-    public void givenGuestInfo_NotAvailableSeats_ThrowException(){
+    public void givenGuestInfo_NotAvailableSeats_ThrowException() {
         var guestName = "Jon Snow";
         int tableId = 1;
         int accompanyingGuests = 1;
@@ -103,7 +103,7 @@ public class GuestServiceTest {
      * Output: an ExerciseServiceBadRequestException exception must be thrown.
      */
     @Test
-    public void givenExistedGuestName_ThrowAnException(){
+    public void givenExistedGuestName_ThrowAnException() {
         var guestName = "Jon Snow";
         int tableId = 1;
         int accompanyingGuests = 1;
@@ -127,7 +127,7 @@ public class GuestServiceTest {
      * Output: an ExerciseServiceException exception must be thrown.
      */
     @Test
-    public void givenNotExistedTableWhileSavingGuest_ThrowAnException(){
+    public void givenNotExistedTableWhileSavingGuest_ThrowAnException() {
         var guestName = "Jon Snow";
         int tableId = 1;
         int accompanyingGuests = 1;
@@ -163,7 +163,7 @@ public class GuestServiceTest {
         List<Guest> resultList = guestService.getGuestList();
         assertEquals(2, resultList.size());
         assertTrue(resultList.stream().anyMatch(guest -> "Jon Snow".equals(guest.getName())
-                        && 1 == guest.getTableNumber() && 2 == guest.getTotalGuests())
+                && 1 == guest.getTableNumber() && 2 == guest.getTotalGuests())
         );
         assertTrue(resultList.stream().anyMatch(guest -> "Arya Stark".equals(guest.getName())
                 && 2 == guest.getTableNumber() && 7 == guest.getTotalGuests())
@@ -339,7 +339,7 @@ public class GuestServiceTest {
     @Test
     public void givenRequestForAvailableSeats_ReturnSeatsCount() {
         given(tableRepository.getAvailableSeats()).willReturn(2);
-        assertEquals(2,guestService.getAvailableSeats());
+        assertEquals(2, guestService.getAvailableSeats());
         verify(tableRepository, times(1)).getAvailableSeats();
     }
 }

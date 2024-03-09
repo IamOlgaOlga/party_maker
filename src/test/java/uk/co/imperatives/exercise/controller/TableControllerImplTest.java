@@ -8,7 +8,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.co.imperatives.exercise.dto.TableRequest;
-import uk.co.imperatives.exercise.repository.data.Table;
+import uk.co.imperatives.exercise.repository.entity.Table;
 import uk.co.imperatives.exercise.service.TableService;
 
 import java.util.ArrayList;
@@ -72,8 +72,8 @@ public class TableControllerImplTest {
     @Test
     public void givenCorrectGetTableListRequest_Return200AndTableID() throws Exception {
         List<Table> tablesList = new ArrayList<>();
-        tablesList.add(new Table(1,2));
-        tablesList.add(new Table(2,3));
+        tablesList.add(new Table(1, 2));
+        tablesList.add(new Table(2, 3));
         given(tableService.getTablesList()).willReturn(tablesList);
         //
         String resultBodyResponse = "{\"tables_list\":[" +
@@ -91,12 +91,12 @@ public class TableControllerImplTest {
     @Test
     public void givenCorrectPutTableRequest_Return200AndTableInfo() throws Exception {
         int tableId = 2;
-        TableRequest tableRequest = new TableRequest(null,5);
+        TableRequest tableRequest = new TableRequest(null, 5);
         given(tableService.updateTable(tableId, 5)).willReturn(tableId);
         //
         mockMvc.perform(put("/table/{id}", tableId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(new ObjectMapper().writeValueAsString(tableRequest)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(tableRequest)))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("{\"table_id\":2}")));
     }
